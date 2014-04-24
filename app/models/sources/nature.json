@@ -1,0 +1,2468 @@
+
+{
+"comment": "nature.com OpenSearch: urn:uuid:384a4ca2-ba06-424f-9f22-878bd7af85c1",
+"namespaces": {
+"_": "http://www.w3.org/2005/Atom",
+"dc": "http://purl.org/dc/elements/1.1/",
+"diag": "http://docs.oasis-open.org/ns/search-ws/sru-2-0-diagnostic",
+"entry": "http://ns.nature.com/entry/",
+"medline": "http://ns.nature.com/entry/medline/",
+"npg": "http://www.nature.com/opensearch/ns/sru/",
+"opensearch": "http://a9.com/-/spec/opensearch/1.1/",
+"pam": "http://prismstandard.org/namespaces/pam/2.0/",
+"prism": "http://prismstandard.org/namespaces/basic/2.1/",
+"sru": "info:srw/xmlns/1/sru-2-0-v1",
+"xhtml": "http://www.w3.org/1999/xhtml"
+},
+"feed": {
+"title":
+"nature.com OpenSearch: 10.7554"
+,
+"subtitle":
+"The nature.com OpenSearch service provides a structured resource discovery facility for content hosted on nature.com."
+,
+"id": "urn:uuid:384a4ca2-ba06-424f-9f22-878bd7af85c1",
+"author": {
+"name": "nature.com",
+"uri": "http://www.nature.com",
+"email": "interfaces@nature.com"
+},
+"updated": "2014-04-23T15:46:11+00:00",
+"rights": "Â© 2014 Nature Publication Group",
+"icon": "http://www.nature.com/opensearch/common/imgs/npg_icon.jpg",
+
+"link": [
+{
+"rel": "self",
+"href": "http://www.nature.com/opensearch/request?version=1.1&operation=searchRetrieve&query=10.7554&httpAccept=application/json&recordPacking=packed&sortKeys=,pam,0&maximumRecords=25&startRecord=1&collection=journals_nature,journals_palgrave,lab_animal,-international_abstracts_in_operations_research&context=false",
+"type": "application/json"
+},
+{
+"rel": "first",
+"href": "http://www.nature.com/opensearch/request?version=1.1&operation=searchRetrieve&query=10.7554&httpAccept=application/json&recordPacking=packed&sortKeys=,pam,0&maximumRecords=25&startRecord=1&collection=journals_nature,journals_palgrave,lab_animal,-international_abstracts_in_operations_research&context=false",
+"type": "application/json"
+},
+
+{
+"rel": "next",
+"href": "http://www.nature.com/opensearch/request?version=1.1&operation=searchRetrieve&query=10.7554&httpAccept=application/json&recordPacking=packed&sortKeys=,pam,0&maximumRecords=25&startRecord=26&collection=journals_nature,journals_palgrave,lab_animal,-international_abstracts_in_operations_research&context=false",
+"type": "application/json"
+},
+
+{
+"rel": "last",
+"href": "http://www.nature.com/opensearch/request?version=1.1&operation=searchRetrieve&query=10.7554&httpAccept=application/json&recordPacking=packed&sortKeys=,pam,0&maximumRecords=25&startRecord=47&collection=journals_nature,journals_palgrave,lab_animal,-international_abstracts_in_operations_research&context=false",
+"type": "application/json"
+},
+{
+"rel": "search",
+"href": "http://www.nature.com/opensearch/opensearch.xml",
+"type": "application/opensearchdescription+xml"
+}
+],
+
+"dc:publisher": "Nature Publishing Group",
+"dc:language": "en",
+"dc:rights": "Â© 2014 Nature Publication Group",
+"prism:copyright": "Â© 2014 Nature Publication Group",
+"prism:rightsAgent": "permissions@nature.com",
+
+"opensearch:totalResults":47,
+
+"opensearch:startIndex":
+1
+,
+
+"opensearch:itemsPerPage":25,
+"opensearch:Query": [
+{
+"opensearch:role": "request",
+"opensearch:searchTerms":
+"10.7554"
+}
+],
+
+"sru:numberOfRecords":47,
+
+"sru:resultSetId": "f27ac4cf-86e6-4741-b545-2631568bce5c",
+"sru:resultSetTTL": "3600",
+
+"sru:nextRecordPosition": "26",
+
+"sru:echoedSearchRetrieveRequest": {
+"sru:version":
+null
+,
+"sru:query":"10.7554",
+"sru:startRecord":"1",
+"sru:maximumRecords":"25",
+"sru:recordPacking":"packed",
+"sru:recordSchema":"pam",
+"sru:sortKeys":",pam,0"
+},
+
+
+"sru:extraResponseData": {
+
+"npg:collection": "journals_nature,journals_palgrave,lab_animal,-international_abstracts_in_operations_research",
+
+"npg:context": "false",
+
+"npg:copyright": "Â© 2014 Nature Publication Group",
+
+"npg:entry": "",
+
+"npg:databaseTitle": "nature.com OpenSearch",
+"npg:datetime": "2014-04-23T15:46:11+00:00",
+"npg:httpAccept": "application/json",
+"npg:responseId": "384a4ca2-ba06-424f-9f22-878bd7af85c1"
+}
+,
+"entry": [
+{
+"title":"Microbiology: Fighting to stay awake",
+"link":"http://dx.doi.org/10.1038/nchembio.1330",
+"id":"http://dx.doi.org/10.1038/nchembio.1330",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/nchembio.1330"
+,
+"dc:title": "Microbiology: Fighting to stay awake"
+,
+"prism:productCode": "nchembio"
+,
+"dc:creator": 
+[
+"Grant Miura"
+
+]
+
+,
+"prism:publicationName": "Nature Chemical Biology"
+,
+"prism:issn": "1552-4450"
+,
+"prism:eIssn": "1552-4469"
+,
+"prism:doi": "10.1038/nchembio.1330"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>eLife , published online  9 July 2013 ; doi: 10.7554/eLife.00712 The tropical disease African sleeping sickness or African trypanosomiasis, caused by  Trypanosoma brucei  infection, results in symptoms such as sleep disturbances and, if left untreated, death. The evolving drug resistance of the parasite and high prevalence of side effects have stymied treatment for this disease, with researchers focusing on the use of protein kinase inhibitors as a therapeutic alternative.</p>"
+,
+"prism:publicationDate": "2013-08-19"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "9"
+,
+"prism:number": "9"
+,
+"prism:startingPage": "529"
+,
+"prism:endingPage": "529"
+,
+"prism:url": "http://dx.doi.org/10.1038/nchembio.1330"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"Target identification"
+,
+
+"Parasitology"
+,
+
+"Kinases"
+,
+
+"Chemical tools"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":1
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Gas sensing: CO<sub>2</sub> speaks for itself",
+"link":"http://dx.doi.org/10.1038/nchembio.1422",
+"id":"http://dx.doi.org/10.1038/nchembio.1422",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/nchembio.1422"
+,
+"dc:title": "Gas sensing: CO<sub>2</sub> speaks for itself"
+,
+"prism:productCode": "nchembio"
+,
+"dc:creator": 
+[
+"Catherine Goodman"
+
+]
+
+,
+"prism:publicationName": "Nature Chemical Biology"
+,
+"prism:issn": "1552-4450"
+,
+"prism:eIssn": "1552-4469"
+,
+"prism:doi": "10.1038/nchembio.1422"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>eLife 2 ,  e01213  ( 2013 ) 10.7554/eLife.01213 CO 2  is a common byproduct of basic metabolism and affects cellular pH via its interconversion with bicarbonate. Thus, changes in pH are generally assumed to serve as a cellular proxy for CO 2  concentration.</p>"
+,
+"prism:publicationDate": "2013-12-17"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "10"
+,
+"prism:number": "1"
+,
+"prism:startingPage": "3"
+,
+"prism:endingPage": "3"
+,
+"prism:url": "http://dx.doi.org/10.1038/nchembio.1422"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"Post-translational modifications"
+,
+
+"Membrane proteins"
+,
+
+"Protein structure predictions"
+,
+
+"Electrophysiology"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2014 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":2
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Neuroscience: Avoiding artifacts in optogenetics studies",
+"link":"http://dx.doi.org/10.1038/nmeth.2907",
+"id":"http://dx.doi.org/10.1038/nmeth.2907",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/nmeth.2907"
+,
+"dc:title": "Neuroscience: Avoiding artifacts in optogenetics studies"
+,
+"prism:productCode": "nmeth"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Nature Methods"
+,
+"prism:issn": "1548-7091"
+,
+"prism:eIssn": "1548-7105"
+,
+"prism:doi": "10.1038/nmeth.2907"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Herman ,  A.M. et al .  eLife 3 ,  e01481  ( 2014 ). 10.7554/eLife.01481.001 Optogenetics tools allow researchers to use light to activate specific neurons expressing a light-sensitive protein, enabling studies of synaptic connectivity and how it relates to animal behavior. The transmembrane channel protein channelrhodopsin-2 (ChR2) in particular has been widely used for this purpose.</p>"
+,
+"prism:publicationDate": "2014-03-28"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "11"
+,
+"prism:number": "4"
+,
+"prism:startingPage": "370"
+,
+"prism:endingPage": "370"
+,
+"prism:url": "http://dx.doi.org/10.1038/nmeth.2907"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+null
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2014 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":3
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Kinase regulation: Switching GSK3 off",
+"link":"http://dx.doi.org/10.1038/nchembio.1517",
+"id":"http://dx.doi.org/10.1038/nchembio.1517",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/nchembio.1517"
+,
+"dc:title": "Kinase regulation: Switching GSK3 off"
+,
+"prism:productCode": "nchembio"
+,
+"dc:creator": 
+[
+"Grant Miura"
+
+]
+
+,
+"prism:publicationName": "Nature Chemical Biology"
+,
+"prism:issn": "1552-4450"
+,
+"prism:eIssn": "1552-4469"
+,
+"prism:doi": "10.1038/nchembio.1517"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>eLIFE  doi: 10.7554/eLife.01998 Glycogen synthase kinase-3 (GSK3) is a constitutively active kinase that regulates diverse processes such as glucose homeostasis and development. Activation of insulin or Wnt/Î²-catenin signaling results in the inhibition of GSK3 activity through distinct mechanisms: insulin signaling turns on Akt expression, which phosphorylates GSK3 at a serine near the N terminus to generate an autoinhibitory peptide that blocks substrate access.</p>"
+,
+"prism:publicationDate": "2014-04-17"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "10"
+,
+"prism:number": "5"
+,
+"prism:startingPage": "325"
+,
+"prism:endingPage": "325"
+,
+"prism:url": "http://dx.doi.org/10.1038/nchembio.1517"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"X-ray crystallography"
+,
+
+"Cell signalling"
+,
+
+"Kinases"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2014 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":4
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"TCRs go it alone",
+"link":"http://dx.doi.org/10.1038/ni.2696",
+"id":"http://dx.doi.org/10.1038/ni.2696",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/ni.2696"
+,
+"dc:title": "TCRs go it alone"
+,
+"prism:productCode": "ni"
+,
+"dc:creator": 
+[
+"Zoltan Fehervari"
+
+]
+
+,
+"prism:publicationName": "Nature Immunology"
+,
+"prism:issn": "1529-2908"
+,
+"prism:eIssn": "1529-2916"
+,
+"prism:doi": "10.1038/ni.2696"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>T cell antigen receptor (TCR) must distinguish between abundant irrelevant peptide and antigenic peptide bound to major histocompatibility complex (MHC) molecules. In  eLife , Groves and colleagues use live TCR-transgenic T cells on a supported lipid bilayer to image the triggering of individual TCR-peptide-MHC complexes.</p>"
+,
+"prism:publicationDate": "2013-08-20"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "14"
+,
+"prism:number": "9"
+,
+"prism:startingPage": "892"
+,
+"prism:endingPage": "892"
+,
+"prism:url": "http://dx.doi.org/10.1038/ni.2696"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"T-cell receptor"
+,
+
+"T cells"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":5
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Microbiology: New bacteria from the bowels",
+"link":"http://dx.doi.org/10.1038/502145e",
+"id":"http://dx.doi.org/10.1038/502145e",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/502145e"
+,
+"dc:title": "Microbiology: New bacteria from the bowels"
+,
+"prism:productCode": "nature"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Nature"
+,
+"prism:issn": "0028-0836"
+,
+"prism:eIssn": "1476-4687"
+,
+"prism:doi": "10.1038/502145e"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>A new evolutionary branch of bacteria has been discovered in human guts and in groundwater. While characterizing microbial communities in human faeces and environmental samples, a team led by Jillian Banfield at the University of California, Berkeley, and Ruth Ley at Cornell University in Ithaca, New York, found DNA sequences that were very distantly related to photosynthetic cyanobacteria.</p>"
+,
+"prism:publicationDate": "2013-10-09"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "502"
+,
+"prism:number": "7470"
+,
+"prism:startingPage": "145"
+,
+"prism:endingPage": "145"
+,
+"prism:url": "http://dx.doi.org/10.1038/502145e"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"Microbiology"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":6
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Share and share alike",
+"link":"http://dx.doi.org/10.1038/ni.2656",
+"id":"http://dx.doi.org/10.1038/ni.2656",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/ni.2656"
+,
+"dc:title": "Share and share alike"
+,
+"prism:productCode": "ni"
+,
+"dc:creator": 
+[
+"Zoltan Fehervari"
+
+]
+
+,
+"prism:publicationName": "Nature Immunology"
+,
+"prism:issn": "1529-2908"
+,
+"prism:eIssn": "1529-2916"
+,
+"prism:doi": "10.1038/ni.2656"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Humans harbor a vast and diverse population of microbes that are affected by many factors, including age and genetics, and can in turn influence immunological status. In  eLife , Knight and colleagues undertake a comprehensive survey of microbes that inhabit the skin, mouth and gut to determine the influence of cohabitation with family members and dogs.</p>"
+,
+"prism:publicationDate": "2013-06-18"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "14"
+,
+"prism:number": "7"
+,
+"prism:startingPage": "691"
+,
+"prism:endingPage": "691"
+,
+"prism:url": "http://dx.doi.org/10.1038/ni.2656"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+null
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":7
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Microbiology: The microbial corpse clock",
+"link":"http://dx.doi.org/10.1038/502413c",
+"id":"http://dx.doi.org/10.1038/502413c",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/502413c"
+,
+"dc:title": "Microbiology: The microbial corpse clock"
+,
+"prism:productCode": "nature"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Nature"
+,
+"prism:issn": "0028-0836"
+,
+"prism:eIssn": "1476-4687"
+,
+"prism:doi": "10.1038/502413c"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Telltale microbes reveal how long an animal has been dead and could one day aid criminal investigations. Forensic scientists sometimes use insects to gauge a corpse's time of death, but the method's margin of error ranges into weeks.</p>"
+,
+"prism:publicationDate": "2013-10-23"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "502"
+,
+"prism:number": "7472"
+,
+"prism:startingPage": "413"
+,
+"prism:endingPage": "413"
+,
+"prism:url": "http://dx.doi.org/10.1038/502413c"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"Microbiology"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":8
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Genomics: Irish-famine pathogen decoded",
+"link":"http://dx.doi.org/10.1038/497538c",
+"id":"http://dx.doi.org/10.1038/497538c",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/497538c"
+,
+"dc:title": "Genomics: Irish-famine pathogen decoded"
+,
+"prism:productCode": "nature"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Nature"
+,
+"prism:issn": "0028-0836"
+,
+"prism:eIssn": "1476-4687"
+,
+"prism:doi": "10.1038/497538c"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Researchers have sequenced the genome of the microorganism that devastated the Irish potato crop in the 1840s â€” the first time the genome of a historical plant pathogen has been decoded. Kentaro Yoshida at the Sainsbury Laboratory in Norwich, UK, and his colleagues identified the strain of  Phytophthora infestans , which causes potato late blight, from nineteenth-century dried leaves.</p>"
+,
+"prism:publicationDate": "2013-05-29"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "497"
+,
+"prism:number": "7451"
+,
+"prism:startingPage": "538"
+,
+"prism:endingPage": "538"
+,
+"prism:url": "http://dx.doi.org/10.1038/497538c"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"Genomics"
+,
+
+"Plant sciences"
+,
+
+"History"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":9
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Microbiology: Dogs and owners share microbes",
+"link":"http://dx.doi.org/10.1038/496400c",
+"id":"http://dx.doi.org/10.1038/496400c",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/496400c"
+,
+"dc:title": "Microbiology: Dogs and owners share microbes"
+,
+"prism:productCode": "nature"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Nature"
+,
+"prism:issn": "0028-0836"
+,
+"prism:eIssn": "1476-4687"
+,
+"prism:doi": "10.1038/496400c"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Humans are colonized by the same types of microbe as the people and the pets they live with. Rob Knight at the University of Colorado Boulder and his team used DNA sequencing to analyse the microbes colonizing the skin, guts and mouths of 159 people and 36 dogs, living in 60 households.</p>"
+,
+"prism:publicationDate": "2013-04-24"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "496"
+,
+"prism:number": "7446"
+,
+"prism:startingPage": "400"
+,
+"prism:endingPage": "400"
+,
+"prism:url": "http://dx.doi.org/10.1038/496400c"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"Microbiology"
+,
+
+"Ecology"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":10
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Medical microbiology: Gut microbes linked to arthritis",
+"link":"http://dx.doi.org/10.1038/503169d",
+"id":"http://dx.doi.org/10.1038/503169d",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/503169d"
+,
+"dc:title": "Medical microbiology: Gut microbes linked to arthritis"
+,
+"prism:productCode": "nature"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Nature"
+,
+"prism:issn": "0028-0836"
+,
+"prism:eIssn": "1476-4687"
+,
+"prism:doi": "10.1038/503169d"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Unfriendly bacteria in the gut might bring on inflammation in the joints. Dan Littman at the New York University School of Medicine and his colleagues collected stool samples from people with arthritis.</p>"
+,
+"prism:publicationDate": "2013-11-13"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "503"
+,
+"prism:number": "7475"
+,
+"prism:startingPage": "169"
+,
+"prism:endingPage": "169"
+,
+"prism:url": "http://dx.doi.org/10.1038/503169d"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"Immunology"
+,
+
+"Medical research"
+,
+
+"Microbiology"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":11
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Model animals: The social lives of lab mice",
+"link":"http://dx.doi.org/10.1038/501008e",
+"id":"http://dx.doi.org/10.1038/501008e",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/501008e"
+,
+"dc:title": "Model animals: The social lives of lab mice"
+,
+"prism:productCode": "nature"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Nature"
+,
+"prism:issn": "0028-0836"
+,
+"prism:eIssn": "1476-4687"
+,
+"prism:doi": "10.1038/501008e"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Mice raised in labs have more-complex social lives than previous models of group behaviour have suggested. Alon Chen and Elad Schneidman at the Weizmann Institute of Science in Rehovot, Israel, and their colleagues used cameras to track the locations of groups of four mice in an arena at night by painting their fur with fluorescent colours.</p>"
+,
+"prism:publicationDate": "2013-09-04"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "501"
+,
+"prism:number": "7465"
+,
+"prism:startingPage": "8"
+,
+"prism:endingPage": "9"
+,
+"prism:url": "http://dx.doi.org/10.1038/501008e"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"Lab life"
+,
+
+"Research management"
+,
+
+"Animal behaviour"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":12
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Opposing enzymes cooperate in ERAD",
+"link":"http://dx.doi.org/10.1038/ncb2929",
+"id":"http://dx.doi.org/10.1038/ncb2929",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/ncb2929"
+,
+"dc:title": "Opposing enzymes cooperate in ERAD"
+,
+"prism:productCode": "ncb"
+,
+"dc:creator": 
+[
+"Christina Karlsson Rosenthal"
+
+]
+
+,
+"prism:publicationName": "Nature Cell Biology"
+,
+"prism:issn": "1465-7392"
+,
+"prism:eIssn": "1476-4679"
+,
+"prism:doi": "10.1038/ncb2929"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Misfolded proteins are extracted from the endoplasmic reticulum (ER) and eliminated through ER-associated degradation (ERAD), in which the E3 ubiquitin ligase gp78 and the p97/VCP ATPase play central roles. The chaperone Bag6 helps maintain substrate solubility and may hand over substrates from p97 to the proteasome.</p>"
+,
+"prism:publicationDate": "2014-02-28"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "16"
+,
+"prism:number": "3"
+,
+"prism:startingPage": "215"
+,
+"prism:endingPage": "215"
+,
+"prism:url": "http://dx.doi.org/10.1038/ncb2929"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"ER-associated degradation"
+,
+
+"Deubiquitylating enzymes"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2014 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":13
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Molecular biology: Molecular switches in RNA",
+"link":"http://dx.doi.org/10.1038/500124d",
+"id":"http://dx.doi.org/10.1038/500124d",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/500124d"
+,
+"dc:title": "Molecular biology: Molecular switches in RNA"
+,
+"prism:productCode": "nature"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Nature"
+,
+"prism:issn": "0028-0836"
+,
+"prism:eIssn": "1476-4687"
+,
+"prism:doi": "10.1038/500124d"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>An RNAâ€“protein complex regulates gene expression in an unanticipated way. The cellular machines called spliceosomes reconfigure transcribed RNA into its mature, protein-coding form.</p>"
+,
+"prism:publicationDate": "2013-08-07"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "500"
+,
+"prism:number": "7461"
+,
+"prism:startingPage": "124"
+,
+"prism:endingPage": "125"
+,
+"prism:url": "http://dx.doi.org/10.1038/500124d"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"Molecular biology"
+,
+
+"Genetics"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":14
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"News updates",
+"link":"http://dx.doi.org/10.1038/laban.453",
+"id":"http://dx.doi.org/10.1038/laban.453",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/laban.453"
+,
+"dc:title": "News updates"
+,
+"prism:productCode": "laban"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Lab Animal"
+,
+"prism:issn": "0093-7355"
+,
+"prism:eIssn": "1548-4475"
+,
+"prism:doi": "10.1038/laban.453"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Vaccine fails to clear pertussis infection in baboons Pertussis, or whooping cough, is a highly contagious respiratory illness caused by the bacterium  Bordetella pertussis . It has reemerged as a public health concern as pertussis rates in the US have increased and reached a 50-year high of 42,000 cases in 2012.</p>"
+,
+"prism:publicationDate": "2013-12-19"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": 
+null
+
+,
+"prism:volume": "43"
+,
+"prism:number": "1"
+,
+"prism:startingPage": "4"
+,
+"prism:endingPage": "5"
+,
+"prism:url": "http://dx.doi.org/10.1038/laban.453"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+null
+
+,
+"prism:genre": "News"
+,
+"prism:copyright": "Â© 2014 Nature Publishing Group"
+}
+
+
+}
+}
+},
+"sru:recordPosition":15
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Mouse models for choroidal neovascularization (CNV) and age-related macular degeneration (AMD)",
+"link":"http://dx.doi.org/10.1038/scibx.2013.771",
+"id":"http://dx.doi.org/10.1038/scibx.2013.771",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/scibx.2013.771"
+,
+"dc:title": "Mouse models for choroidal neovascularization (CNV) and age-related macular degeneration (AMD)"
+,
+"prism:productCode": "scibx"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Science-Business eXchange"
+,
+"prism:issn": 
+null
+
+,
+"prism:eIssn": 
+null
+
+,
+"prism:doi": "10.1038/scibx.2013.771"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Summary Mouse models for CNV could help identify therapeutics to treat AMD. Abnormal vascularization of the retina or choroid can give rise to AMD.</p>"
+,
+"prism:publicationDate": "2013-08-01"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "online"
+,
+"prism:volume": "6"
+,
+"prism:number": "29"
+,
+"prism:startingPage": 
+null
+
+,
+"prism:endingPage": 
+null
+
+,
+"prism:url": "http://dx.doi.org/10.1038/scibx.2013.771"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+null
+
+,
+"prism:genre": "News"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group"
+}
+
+
+}
+}
+},
+"sru:recordPosition":16
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"<weblink>Signal transducer and activator of transcription 5</weblink> (<weblink>STAT5</weblink>)",
+"link":"http://dx.doi.org/10.1038/scibx.2014.163",
+"id":"http://dx.doi.org/10.1038/scibx.2014.163",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/scibx.2014.163"
+,
+"dc:title": "<weblink>Signal transducer and activator of transcription 5</weblink> (<weblink>STAT5</weblink>)"
+,
+"prism:productCode": "scibx"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Science-Business eXchange"
+,
+"prism:issn": 
+null
+
+,
+"prism:eIssn": 
+null
+
+,
+"prism:doi": "10.1038/scibx.2014.163"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Summary Human tissue sample and mouse studies suggest inhibiting STAT5 could help reduce the risk of breast cancer associated with late-age pregnancy. Mice that had been pregnant had greater numbers of tumors and levels of Stat5 in precancerous lesions than unmated mice.</p>"
+,
+"prism:publicationDate": "2014-02-13"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "online"
+,
+"prism:volume": "7"
+,
+"prism:number": "6"
+,
+"prism:startingPage": 
+null
+
+,
+"prism:endingPage": 
+null
+
+,
+"prism:url": "http://dx.doi.org/10.1038/scibx.2014.163"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+null
+
+,
+"prism:genre": "News"
+,
+"prism:copyright": "Â© 2014 Nature Publishing Group"
+}
+
+
+}
+}
+},
+"sru:recordPosition":17
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Crisper results for CRISPR",
+"link":"http://dx.doi.org/10.1038/scibx.2013.950",
+"id":"http://dx.doi.org/10.1038/scibx.2013.950",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/scibx.2013.950"
+,
+"dc:title": "Crisper results for CRISPR"
+,
+"prism:productCode": "scibx"
+,
+"dc:creator": 
+[
+"Kai-Jye Lou"
+
+]
+
+,
+"prism:publicationName": "Science-Business eXchange"
+,
+"prism:issn": 
+null
+
+,
+"prism:eIssn": 
+null
+
+,
+"prism:doi": "10.1038/scibx.2013.950"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Since its introduction earlier this year, proponents of CRISPR-based genome editing have touted its simplicity and efficiency over other genome editing platforms, but they have more recently also offered a word of caution on its specificity.  Research from the  Broad Institute of MIT and Harvard  may now allay these concerns with an updated version of the technique that decreases editing activity at predicted off-target sites by 50- to 1,000-fold compared with earlier implementations.</p>"
+,
+"prism:publicationDate": "2013-09-12"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "online"
+,
+"prism:volume": "6"
+,
+"prism:number": "35"
+,
+"prism:startingPage": 
+null
+
+,
+"prism:endingPage": 
+null
+
+,
+"prism:url": "http://dx.doi.org/10.1038/scibx.2013.950"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+null
+
+,
+"prism:genre": "Comments and Opinion"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group"
+}
+
+
+}
+}
+},
+"sru:recordPosition":18
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Rational approach to Xtandi resistance",
+"link":"http://dx.doi.org/10.1038/scibx.2013.429",
+"id":"http://dx.doi.org/10.1038/scibx.2013.429",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/scibx.2013.429"
+,
+"dc:title": "Rational approach to Xtandi resistance"
+,
+"prism:productCode": "scibx"
+,
+"dc:creator": 
+[
+"Kai-Jye Lou"
+
+]
+
+,
+"prism:publicationName": "Science-Business eXchange"
+,
+"prism:issn": 
+null
+
+,
+"prism:eIssn": 
+null
+
+,
+"prism:doi": "10.1038/scibx.2013.429"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>A group led by researchers at the  Memorial Sloan-Kettering Cancer Center  has identified a mutation in the  androgen receptor  that could drive resistance to second-generation antiandrogen drugs such as  Medivation Inc. 's  Xtandi  enzalutamide. The team's subsequent rational drug design studies yielded a series of molecules that could overcome the resistance mechanism.</p>"
+,
+"prism:publicationDate": "2013-05-09"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "online"
+,
+"prism:volume": "6"
+,
+"prism:number": "18"
+,
+"prism:startingPage": 
+null
+
+,
+"prism:endingPage": 
+null
+
+,
+"prism:url": "http://dx.doi.org/10.1038/scibx.2013.429"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+null
+
+,
+"prism:genre": "Comments and Opinion"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group"
+}
+
+
+}
+}
+},
+"sru:recordPosition":19
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Rheumatoid arthritis: <i>Prevotella copri</i> associated with new-onset untreated RA",
+"link":"http://dx.doi.org/10.1038/nrrheum.2013.187",
+"id":"http://dx.doi.org/10.1038/nrrheum.2013.187",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/nrrheum.2013.187"
+,
+"dc:title": "Rheumatoid arthritis: <i>Prevotella copri</i> associated with new-onset untreated RA"
+,
+"prism:productCode": "nrrheum"
+,
+"dc:creator": 
+[
+"Nicholas J. Bernard"
+
+]
+
+,
+"prism:publicationName": "Nature Reviews Rheumatology"
+,
+"prism:issn": "1759-4790"
+,
+"prism:eIssn": "1759-4804"
+,
+"prism:doi": "10.1038/nrrheum.2013.187"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>By parallel genetic sequencing the intestinal microbiome, researchers have discovered a high prevalence of the bacteria  Prevotella copri  in patients with rheumatoid arthritis (RA). â€œIt has been suspected that RA was linked to infections or perhaps even diet, but this is the first finding of an association with a specific microbe,â€ says Professor Dan Littman about his collaborative study now published in  eLife . Previous work using mouse models of arthritis identified that intestinal microbiota can affect inflammation in the joints.</p>"
+,
+"prism:publicationDate": "2013-11-26"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "10"
+,
+"prism:number": "1"
+,
+"prism:startingPage": "2"
+,
+"prism:endingPage": "2"
+,
+"prism:url": "http://dx.doi.org/10.1038/nrrheum.2013.187"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+[
+"Rheumatoid arthritis"
+,
+
+"Microbiota"
+
+]
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":20
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"<weblink>Poliovirus receptorâ€“related 4</weblink> (<weblink>PVRL4</weblink>)",
+"link":"http://dx.doi.org/10.1038/scibx.2013.541",
+"id":"http://dx.doi.org/10.1038/scibx.2013.541",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/scibx.2013.541"
+,
+"dc:title": "<weblink>Poliovirus receptorâ€“related 4</weblink> (<weblink>PVRL4</weblink>)"
+,
+"prism:productCode": "scibx"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Science-Business eXchange"
+,
+"prism:issn": 
+null
+
+,
+"prism:eIssn": 
+null
+
+,
+"prism:doi": "10.1038/scibx.2013.541"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Summary In vitro  and mouse studies suggest inhibiting PVRL4 could help treat cancer. A genetic screen to identify genes that promote anchorage-independent growth identified  PVRL4  as a top candidate.</p>"
+,
+"prism:publicationDate": "2013-06-06"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "online"
+,
+"prism:volume": "6"
+,
+"prism:number": "22"
+,
+"prism:startingPage": 
+null
+
+,
+"prism:endingPage": 
+null
+
+,
+"prism:url": "http://dx.doi.org/10.1038/scibx.2013.541"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+null
+
+,
+"prism:genre": "News"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group"
+}
+
+
+}
+}
+},
+"sru:recordPosition":21
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"<weblink>Androgen receptor</weblink>",
+"link":"http://dx.doi.org/10.1038/scibx.2013.437",
+"id":"http://dx.doi.org/10.1038/scibx.2013.437",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/scibx.2013.437"
+,
+"dc:title": "<weblink>Androgen receptor</weblink>"
+,
+"prism:productCode": "scibx"
+,
+"dc:creator": 
+null
+
+,
+"prism:publicationName": "Science-Business eXchange"
+,
+"prism:issn": 
+null
+
+,
+"prism:eIssn": 
+null
+
+,
+"prism:doi": "10.1038/scibx.2013.437"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Summary Cell culture and mouse studies identified androgen receptor antagonists that could help treat prostate cancers that acquire resistance to  Xtandi  enzalutamide. Structural modeling and  in vitro  mutagenesis assays identified F876L as a mutation in the androgen receptor that prevents antagonism by Xtandi and instead causes the drug to behave as a partial agonist.</p>"
+,
+"prism:publicationDate": "2013-05-09"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "online"
+,
+"prism:volume": "6"
+,
+"prism:number": "18"
+,
+"prism:startingPage": 
+null
+
+,
+"prism:endingPage": 
+null
+
+,
+"prism:url": "http://dx.doi.org/10.1038/scibx.2013.437"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+null
+
+,
+"prism:genre": "News"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group"
+}
+
+
+}
+}
+},
+"sru:recordPosition":22
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"RNA guides genome engineering",
+"link":"http://dx.doi.org/10.1038/nbt.2527",
+"id":"http://dx.doi.org/10.1038/nbt.2527",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/nbt.2527"
+,
+"dc:title": "RNA guides genome engineering"
+,
+"prism:productCode": "nbt"
+,
+"dc:creator": 
+[
+"Claudio Mussolino"
+,
+
+"Toni Cathomen"
+
+]
+
+,
+"prism:publicationName": "Nature Biotechnology"
+,
+"prism:issn": "1087-0156"
+,
+"prism:eIssn": "1546-1696"
+,
+"prism:doi": "10.1038/nbt.2527"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "The Cas9 endonuclease is reprogrammed by RNAs for site-specific modification of eukaryotic and microbial genomes."
+,
+"prism:publicationDate": "2013-03-07"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "issue"
+,
+"prism:volume": "31"
+,
+"prism:number": "3"
+,
+"prism:startingPage": "208"
+,
+"prism:endingPage": "209"
+,
+"prism:url": "http://dx.doi.org/10.1038/nbt.2527"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+null
+
+,
+"prism:genre": "News and Views"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":23
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Therapeutic resistance: Two steps ahead",
+"link":"http://dx.doi.org/10.1038/nrc3532",
+"id":"http://dx.doi.org/10.1038/nrc3532",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/nrc3532"
+,
+"dc:title": "Therapeutic resistance: Two steps ahead"
+,
+"prism:productCode": "nrc"
+,
+"dc:creator": 
+[
+"Sarah Seton-Rogers"
+
+]
+
+,
+"prism:publicationName": "Nature Reviews Cancer"
+,
+"prism:issn": "1474-175X"
+,
+"prism:eIssn": "1474-1768"
+,
+"prism:doi": "10.1038/nrc3532"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "A screen has prospectively identified a resistance mutation in the androgen receptor (AR) that is selected for during treatment with the AR antagonist enzalutamide, and <i>in silico</i> modelling has suggested a mechanism behind the resistance, which may be able to be overcome using a novel compound."
+,
+"prism:publicationDate": "2013-05-10"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": 
+null
+
+,
+"prism:volume": "13"
+,
+"prism:number": "6"
+,
+"prism:startingPage": "382"
+,
+"prism:endingPage": "383"
+,
+"prism:url": "http://dx.doi.org/10.1038/nrc3532"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+null
+
+,
+"prism:genre": "Research Highlights"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved."
+}
+
+
+}
+}
+},
+"sru:recordPosition":24
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+,
+
+{
+"title":"Agonizing switch in prostate cancer",
+"link":"http://dx.doi.org/10.1038/scibx.2013.615",
+"id":"http://dx.doi.org/10.1038/scibx.2013.615",
+"updated": "2014-04-23T15:46:11+00:00",
+"content": null,
+
+"sru:recordSchema": "info:srw/schema/11/pam-v2.1",
+"sru:recordPacking": "packed",
+"sru:recordData": {
+"pam:message": {
+"pam:article": {
+
+"xhtml:head": {
+"dc:identifier": "doi:10.1038/scibx.2013.615"
+,
+"dc:title": "Agonizing switch in prostate cancer"
+,
+"prism:productCode": "scibx"
+,
+"dc:creator": 
+[
+"Amy Donner"
+
+]
+
+,
+"prism:publicationName": "Science-Business eXchange"
+,
+"prism:issn": 
+null
+
+,
+"prism:eIssn": 
+null
+
+,
+"prism:doi": "10.1038/scibx.2013.615"
+,
+"dc:publisher": "Nature Publishing Group"
+,
+"dc:description": "<p>Aragon Pharmaceuticals Inc.  researchers have uncovered how a specific  androgen receptor  mutation results in turning second-generation antagonists for prostate cancer into agonists.  The results could allow the company, which is being acquired by  Johnson & Johnson , to develop third-generation molecules that overcome the resistance mechanism.</p>"
+,
+"prism:publicationDate": "2013-06-27"
+,
+"prism:coverDate": 
+null
+
+,
+"prism:aggregationType": "online"
+,
+"prism:volume": "6"
+,
+"prism:number": "25"
+,
+"prism:startingPage": 
+null
+
+,
+"prism:endingPage": 
+null
+
+,
+"prism:url": "http://dx.doi.org/10.1038/scibx.2013.615"
+,
+"prism:channel": 
+null
+
+,
+"prism:section": 
+null
+
+,
+"dc:subject": 
+null
+
+,
+"prism:genre": "Comments and Opinion"
+,
+"prism:copyright": "Â© 2013 Nature Publishing Group"
+}
+
+
+}
+}
+},
+"sru:recordPosition":25
+,
+"sru:extraRecordData": {
+"entry": [
+
+]
+}
+}
+
+]
+
+}
+}
