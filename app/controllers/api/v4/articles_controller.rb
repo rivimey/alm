@@ -35,7 +35,7 @@ class Api::V4::ArticlesController < Api::V4::BaseController
       render "success"
     else
       @error = @article.errors
-      render :status => :created
+      render :status => :bad_request
       render "error"
     end
   end
