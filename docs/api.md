@@ -132,7 +132,7 @@ The API returns `null` if no query was made, and `0` if the external API returns
       "pmcid": "2568856",
       "issued": {
         "date_parts": [
-          [
+[
             2008,
             10,
             31
@@ -144,34 +144,34 @@ The API returns `null` if no query was made, and `0` if the external API returns
       "discussed": 30,
       "cited": 51,
       "update_date": "2014-06-22T00:40:15Z",
-      "sources": [
-        {
+    "sources": [
+      {
           "name": "citeulike",
           "display_name": "CiteULike",
           "events_url": "http://www.citeulike.org/doi/10.1371%2Fjournal.pcbi.1000204",
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": 473,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 473
-          },
-          "update_date": "2014-06-20T09:25:36Z"
         },
-        {
+          "update_date": "2014-06-20T09:25:36Z"
+      },
+      {
           "name": "crossref",
           "display_name": "CrossRef",
           "group_name": "cited",
           "events_url": null,
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 27
-          },
+        },
           "by_day": [
           ],
           "by_month": [
@@ -179,8 +179,8 @@ The API returns `null` if no query was made, and `0` if the external API returns
               "year": 2014,
               "month": 5,
               "total": 27
-            },
-            {
+      },
+      {
               "year": 2014,
               "month": 6,
               "total": 0
@@ -197,74 +197,74 @@ The API returns `null` if no query was made, and `0` if the external API returns
         {
           "name": "nature",
           "display_name": "Nature",
-          "events_url": null,
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "events_url": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
-            "comments": null,
-            "likes": null,
-            "total": 0
-          },
-          "update_date": "2014-06-01T20:17:33Z"
+          "comments": null,
+          "likes": null,
+          "total": 0
         },
-        {
+          "update_date": "2014-06-01T20:17:33Z"
+      },
+      {
           "name": "pubmed",
           "display_name": "PubMed Central",
           "events_url": "http://www.ncbi.nlm.nih.gov/sites/entrez?db=pubmed&cmd=link&LinkName=pubmed_pmc_refs&from_uid=18974831",
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 16
-          },
-          "update_date": "2014-06-18T08:01:51Z"
         },
-        {
+          "update_date": "2014-06-18T08:01:51Z"
+      },
+      {
           "name": "scopus",
           "display_name": "Scopus",
           "events_url": "http://www.scopus.com/inward/citedby.url?partnerID=HzOxMe3b&scp=55449101991",
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 51
-          },
-          "update_date": "2014-06-01T15:02:52Z"
         },
-        {
+          "update_date": "2014-06-01T15:02:52Z"
+      },
+      {
           "name": "counter",
           "display_name": "Counter",
-          "events_url": null,
-          "metrics": {
+        "events_url": null,
+        "metrics": {
             "pdf": 7351,
             "html": 66069,
             "readers": null,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 73836
-          },
-          "update_date": "2014-06-21T12:04:49Z"
         },
-        {
+          "update_date": "2014-06-21T12:04:49Z"
+      },
+      {
           "name": "researchblogging",
           "display_name": "Research Blogging",
           "events_url": "http://researchblogging.org/post-search/list?article=10.1371%2Fjournal.pcbi.1000204",
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 7
-          },
-          "update_date": "2014-05-06T14:07:07Z"
         },
-        {
+          "update_date": "2014-05-06T14:07:07Z"
+      },
+      {
           "name": "pmc",
           "display_name": "PubMed Central Usage Stats",
           "events_url": "http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2568856",
@@ -281,174 +281,174 @@ The API returns `null` if no query was made, and `0` if the external API returns
         {
           "name": "facebook",
           "display_name": "Facebook",
-          "events_url": null,
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "events_url": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": 17,
             "comments": 1,
             "likes": 0,
             "total": 18
-          },
-          "update_date": "2014-06-11T12:55:20Z"
         },
-        {
+          "update_date": "2014-06-11T12:55:20Z"
+      },
+      {
           "name": "mendeley",
           "display_name": "Mendeley",
           "events_url": "http://www.mendeley.com/catalog/defrosting-digital-library-bibliographic-tools-next-generation-web/",
-          "metrics": {
+        "metrics": {
             "pdf": null,
             "html": null,
             "readers": 1787,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 1787
-          },
-          "update_date": "2014-06-11T15:07:16Z"
         },
-        {
+          "update_date": "2014-06-11T15:07:16Z"
+      },
+      {
           "name": "twitter",
           "display_name": "Twitter",
-          "events_url": null,
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "events_url": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
             "comments": 12,
-            "likes": null,
+          "likes": null,
             "total": 12
-          },
-          "update_date": "2014-06-17T13:21:56Z"
         },
-        {
+          "update_date": "2014-06-17T13:21:56Z"
+      },
+      {
           "name": "wikipedia",
           "display_name": "Wikipedia",
           "events_url": "http://en.wikipedia.org/w/index.php?search=\"10.1371%2Fjournal.pcbi.1000204\"",
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 7
-          },
-          "update_date": "2014-06-17T21:21:05Z"
         },
-        {
+          "update_date": "2014-06-17T21:21:05Z"
+      },
+      {
           "name": "scienceseeker",
           "display_name": "ScienceSeeker",
           "events_url": "http://scienceseeker.org/posts/?filter0=citation&modifier0=doi&value0=10.1371%2Fjournal.pcbi.1000204",
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 0
-          },
-          "update_date": "2014-06-03T13:32:39Z"
         },
-        {
+          "update_date": "2014-06-03T13:32:39Z"
+      },
+      {
           "name": "f1000",
           "display_name": "F1000Prime",
-          "events_url": null,
-          "metrics": {
+        "events_url": null,
+        "metrics": {
             "pdf": null,
             "html": null,
             "readers": null,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 0
-          },
-          "update_date": "2014-04-15T08:06:14Z"
         },
-        {
+          "update_date": "2014-04-15T08:06:14Z"
+      },
+      {
           "name": "figshare",
           "display_name": "Figshare",
-          "events_url": null,
-          "metrics": {
+        "events_url": null,
+        "metrics": {
             "pdf": 0,
             "html": 3,
             "readers": null,
             "comments": null,
             "likes": 0,
             "total": 3
-          },
-          "update_date": "2014-06-20T05:03:53Z"
         },
-        {
+          "update_date": "2014-06-20T05:03:53Z"
+      },
+      {
           "name": "pmceurope",
           "display_name": "PMC Europe Citations",
           "events_url": "http://europepmc.org/abstract/MED/18974831#fragment-related-citations",
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 17
-          },
-          "update_date": "2014-06-19T07:00:58Z"
         },
-        {
+          "update_date": "2014-06-19T07:00:58Z"
+      },
+      {
           "name": "pmceuropedata",
           "display_name": "PMC Europe Database Citations",
           "events_url": "http://europepmc.org/abstract/MED/18974831#fragment-related-bioentities",
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 0
-          },
-          "update_date": "2014-05-31T05:00:14Z"
         },
-        {
+          "update_date": "2014-05-31T05:00:14Z"
+      },
+      {
           "name": "wordpress",
           "display_name": "Wordpress.com",
           "events_url": "http://en.search.wordpress.com/?q=\"10.1371%2Fjournal.pcbi.1000204\"&t=post",
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 13
-          },
-          "update_date": "2014-06-20T06:37:38Z"
         },
-        {
+          "update_date": "2014-06-20T06:37:38Z"
+      },
+      {
           "name": "reddit",
           "display_name": "Reddit",
           "events_url": "http://www.reddit.com/search?q=\"10.1371%2Fjournal.pcbi.1000204\"",
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
             "comments": 0,
             "likes": 0,
-            "total": 0
-          },
-          "update_date": "2014-06-19T02:10:13Z"
+          "total": 0
         },
-        {
+          "update_date": "2014-06-19T02:10:13Z"
+      },
+      {
           "name": "datacite",
           "display_name": "DataCite",
           "events_url": "http://search.datacite.org/ui?q=relatedIdentifier:10.1371%2Fjournal.pcbi.1000204",
-          "metrics": {
-            "pdf": null,
-            "html": null,
+        "metrics": {
+          "pdf": null,
+          "html": null,
             "readers": null,
-            "comments": null,
-            "likes": null,
+          "comments": null,
+          "likes": null,
             "total": 0
-          },
+        },
           "update_date": "2014-06-20T23:00:47Z"
-        }
-      ]
-    }
-  ]
+      }
+    ]
+  }
+]
 }
 ```
 
