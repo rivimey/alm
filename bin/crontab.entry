@@ -1,0 +1,3 @@
+# update from rss suitable for crontab
+20 18 * * * /bin/bash -l -c '( date;cd /var/www/alm/shared/bin; /bin/bash ./update-arts-from-rss.sh  ) >> /var/www/alm/current/log/cron.log 2>&1'
+
