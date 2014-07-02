@@ -9,13 +9,6 @@
   <xsl:output method="text" indent="yes"/>
 
   <xsl:template match="/">
-    <xsl:text>DOI</xsl:text>
-    <xsl:text>&#x20;</xsl:text>
-    <xsl:text>Date</xsl:text>
-    <xsl:text>&#x20;</xsl:text>
-    <xsl:text>Title</xsl:text>
-    <xsl:text>&#x0A;</xsl:text>
-
     <xsl:for-each select="rdf:RDF/rss:item">
       <xsl:apply-templates select="dc:identifier"/>
       <xsl:text>&#x20;</xsl:text>
