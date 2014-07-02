@@ -27,26 +27,27 @@ xsltransform=${SCRIPTPATH}/rss-to-almdoi.xsl
 # Where we keep intermediate files, including the previous
 # run for comparisons
 tmpdir=/tmp/rssfeed
-oldsfx=-old
-newsfx=-cur
-chgsfx=-changes
+oldsuffix=-old
+newsuffix=-cur
+chgsuffix=-changes
 
 mkdir -p ${tmpdir}
 
-curl -s "http://elifesciences.org/rss/recent.xml" | ${xsltproc} "${xsltransform}" -   | sort > "${tmpdir}/recent${newsfx}.txt"
-curl -s "http://elifesciences.org/rss/ahead.xml" | ${xsltproc} "${xsltransform}"  -   | sort > "${tmpdir}/ahead${newsfx}.txt"
+# Fetch rss stream, transform to text format, then sort so 'comm' is happy
+curl -s "http://elifesciences.org/rss/recent.xml" | ${xsltproc} "${xsltransform}" -   | sort > "${tmpdir}/recent${newsuffix}.txt"
+curl -s "http://elifesciences.org/rss/ahead.xml" | ${xsltproc} "${xsltransform}"  -   | sort > "${tmpdir}/ahead${newsuffix}.txt"
 
 echo `date` Changes in Recent:
-if [ -s "${tmpdir}/recent${oldsfx}.txt" ] ; then
-  diff "${tmpdir}/recent${oldsfx}.txt" "${tmpdir}/recent${newsfx}.txt" 
-  ${comm} "${tmpdir}/recent${oldsfx}.txt" "${tmpdir}/recent${newsfx}.txt" > "${tmpdir}/recent${chgsfx}.txt"
+if [ -s "${tmpdir}/recent${oldsuffix}.txt" ] ; then
+  diff "${tmpdir}/recent${oldsuffix}.txt" "${tmpdir}/recent${newsuffix}.txt" 
+  ${comm} "${tmpdir}/recent${oldsuffix}.txt" "${tmpdir}/recent${newsuffix}.txt" > "${tmpdir}/recent${chgsuffix}.txt"
 else
   echo `date` No old file found.
 fi
 echo `date` Changes in Ahead:
-if [ -s "${tmpdir}/ahead${oldsfx}.txt" ] ; then
-  diff "${tmpdir}/ahead${oldsfx}.txt" "${tmpdir}/ahead${newsfx}.txt" 
-  ${comm} "${tmpdir}/ahead${oldsfx}.txt" "${tmpdir}/ahead${newsfx}.txt" > "${tmpdir}/ahead${chgsfx}.txt"
+if [ -s "${tmpdir}/ahead${oldsuffix}.txt" ] ; then
+  diff "${tmpdir}/ahead${oldsuffix}.txt" "${tmpdir}/ahead${newsuffix}.txt" 
+  ${comm} "${tmpdir}/ahead${oldsuffix}.txt" "${tmpdir}/ahead${newsuffix}.txt" > "${tmpdir}/ahead${chgsuffix}.txt"
 else
   echo `date` No old file found.
 fi
@@ -67,12 +68,12 @@ else
 fi
 
 # Rename current file to previous ready for next call
-mv "${tmpdir}/recent${newsfx}.txt" "${tmpdir}/recent${oldsfx}.txt"
-mv "${tmpdir}/ahead${newsfx}.txt" "${tmpdir}/ahead${oldsfx}.txt"
+mv "${tmpdir}/recent${newsuffix}.txt" "${tmpdir}/recent${oldsuffix}.txt"
+mv "${tmpdir}/ahead${newsuffix}.txt" "${tmpdir}/ahead${oldsuffix}.txt"
 
 # Delete the differences files
-#rm -f "${tmpdir}/recent${chgsfx}.txt"
-#rm -f "${tmpdir}/ahead${chgsfx}.txt"
+rm -f "${tmpdir}/recent${chgsuffix}.txt"
+rm -f "${tmpdir}/ahead${chgsuffix}.txt"
 
 echo `date` Done.
 exit 0
