@@ -1,22 +1,31 @@
-# $HeadURL$
-# $Id$
-#
-# Copyright (c) 2009-2012 by Public Library of Science, a non-profit corporation
-# http://www.plos.org/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 class PublisherOption < ActiveRecord::Base
+  # include config methods
+  include Configurable
+
   belongs_to :publisher
-  belongs_to :source
+  belongs_to :agent
+
+  serialize :config, OpenStruct
+
+  validate :validate_publisher_fields, :on => :update
+
+  # fields with publisher-specific settings such as API keys,
+  # i.e. everything that is not a URL
+  def publisher_fields
+    agent.config_fields.select { |field| field !~ /url/ }
+  end
+
+  # Custom validations
+  def validate_publisher_fields
+    publisher_fields.each do |field|
+
+      # Some fields can be blank
+      next if agent.name == "crossref" && field == :password
+      next if agent.name == "mendeley" && field == :access_token
+      next if agent.name == "twitter_search" && field == :access_token
+      next if agent.name == "scopus" && field == :insttoken
+
+      errors.add(field, "can't be blank") if send(field).blank?
+    end
+  end
 end

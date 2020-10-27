@@ -1,23 +1,3 @@
-# encoding: UTF-8
-
-# $HeadURL$
-# $Id$
-#
-# Copyright (c) 2009-2014 by Public Library of Science, a non-profit corporation
-# http://www.plos.org/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 module Authenticable
   extend ActiveSupport::Concern
 
@@ -26,32 +6,42 @@ module Authenticable
       request.format = :json if request.format.html?
     end
 
-    def authenticate_user_from_token!
-      user_token = params[:api_key].presence
-      user       = user_token && User.find_by_authentication_token(user_token.to_s)
-
-      if user
-        sign_in user, store: false
-      else
-        @error = "Missing or wrong API key."
-        render "error", :status => 401
+    # from https://github.com/spree/spree/blob/master/api/app/controllers/spree/api/base_controller.rb
+    def set_jsonp_format
+      if params[:callback] && request.get?
+        self.response_body = "#{params[:callback]}(#{response.body})"
+        headers["Content-Type"] = 'application/javascript'
       end
     end
 
-    def authenticate_user_via_basic_authentication!
-      authenticate_or_request_with_http_basic do |username, password|
-        resource = User.find_by_username(username)
-        if resource && resource.valid_password?(password)
-          sign_in :user, resource
+    def authenticate_user_from_token_param!
+      token = params[:api_key].presence
+      user = token && User.where(authentication_token: token).first
+
+      if user && Devise.secure_compare(user.authentication_token, token)
+        sign_in user, store: false
+      else
+        current_user = false
+      end
+    end
+
+    # looking for header "Authorization: Token token=12345"
+    def authenticate_user_from_token!
+      authenticate_with_http_token do |token, options|
+        user = token && User.where(authentication_token: token).first
+
+        if user && Devise.secure_compare(user.authentication_token, token)
+          sign_in user, store: false
         else
-          @error = "You are not authorized to access this page."
-          render "error", :status => 401
+          current_user = false
         end
       end
     end
 
-    def create_alert(exception, options = {})
-      Alert.create(exception: exception, status: options[:status])
+    def create_notification(exception, options = {})
+      Notification.where(message: exception.message).where(unresolved: true).first_or_create(
+        exception: exception,
+        status: options[:status])
     end
 
     def cors_set_access_control_headers
@@ -70,31 +60,41 @@ module Authenticable
       end
     end
 
-    rescue_from CanCan::AccessDenied do |exception|
-      @error = exception.message
-      @article = nil
-      render "error", :status => 401
+    def disable_devise_trackable
+      request.env["devise.skip_trackable"] = true
     end
 
-    rescue_from ActionController::ParameterMissing do |exception|
-      @error = { exception.param => ['parameter is required'] }
-      @article = nil
-      create_alert(exception, status: 422)
-      render "error", :status => 422
-    end
+    rescue_from *RESCUABLE_EXCEPTIONS do |exception|
+      status = case exception.class.to_s
+               when "CanCan::AccessDenied" then 401
+               when "ActiveRecord::RecordNotFound" then 404
+               when "ActiveModel::ForbiddenAttributesError", "ActionController::UnpermittedParameters", "NoMethodError" then 422
+               else 400
+               end
 
-    rescue_from ActionController::UnpermittedParameters do |exception|
-      @error = Hash[exception.params.map { |v| [v, ['unpermitted parameter']] }]
-      @article = nil
-      create_alert(exception, status: 422)
-      render "error", :status => 422
-    end
+      if status == 404
+        message = "The page you are looking for doesn't exist."
+      elsif status == 401
+        message = "You are not authorized to access this page."
+      else
+        create_notification(exception, status: status)
+        message = exception.message
+      end
 
-    rescue_from NoMethodError do |exception|
-      @error = "Undefined method."
-      @article = nil
-      create_alert(exception, status: 422)
-      render "error", :status => 422
+      respond_to do |format|
+        format.html do
+          if /(jpe?g|png|gif|css)/i == request.path
+            render text: message, status: status
+          else
+            @notification = Notification.where(message: message).where(unresolved: true).first_or_initialize(
+              status: status)
+            render "notifications/show", status: status
+          end
+        end
+        format.xml { render xml: { error: message }.to_xml, status: status }
+        format.rss { render :show, status: status, layout: false }
+        format.all { render json: { meta: { status: "error", error: message }}, status: status }
+      end
     end
   end
 end

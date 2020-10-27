@@ -1,40 +1,36 @@
 class UsersController < ApplicationController
-  before_filter :load_user, :only => [ :show, :edit, :destroy ]
+  before_filter :load_user, only: [:show, :edit, :destroy]
   load_and_authorize_resource
 
-  respond_to :html, :js
-
   def show
-    respond_with(@user) do |format|
+    respond_to do |format|
       format.js { render :show }
+      format.html
     end
   end
 
   def index
     load_index
-    respond_with @users
   end
 
   def edit
-    respond_with(@user) do |format|
-      format.js { render :show }
+    if params[:id].to_i == current_user.id
+      # user updates his account
+      render :show
+    else
+      # admin updates user account
+      @user = User.find(params[:id])
+      @reports = Report.available(@user.role)
+      @doc = Doc.find("api")
+      load_index
+      render :index
     end
   end
 
   def update
-    # Admin updates user role
-    if params[:user][:role]
-      @user = User.find(params[:id])
-      @reports = Report.available(@user.role)
-      @doc = Doc.find("api")
+    if params[:id].to_i == current_user.id
+      # user updates his account
 
-      @user.update_attribute(:role, params[:user][:role])
-      load_index
-      respond_with(@users) do |format|
-        format.js { render :index }
-      end
-    # User updates his account
-    else
       load_user
 
       if params[:user][:subscribe]
@@ -47,29 +43,22 @@ class UsersController < ApplicationController
         sign_in @user, :bypass => true if @user.update_attributes(safe_params)
       end
 
-      respond_with(@user) do |format|
-        format.js { render :show }
-      end
+      render :show
+    else
+      # admin updates user account
+      @user = User.find(params[:id])
+      @user.update_attributes(safe_params)
+
+      load_index
+      render :index
     end
   end
 
   def destroy
+    @user = User.find(params[:id])
     @user.destroy
     load_index
-    respond_with(@users) do |format|
-      format.js { render :index }
-    end
-  end
-
-  def update_password
-    load_user
-    if @user.update_with_password(user_params)
-      # Sign in the user by passing validation in case his password changed
-      sign_in @user, :bypass => true
-      redirect_to root_path
-    else
-      render "edit"
-    end
+    render :index
   end
 
   protected
@@ -88,17 +77,24 @@ class UsersController < ApplicationController
     collection = User
     if params[:role]
       collection = collection.where(:role => params[:role])
-      @role = params[:role]
+      @role = User.where(role: params[:role]).group(:role).count.first
     end
-    collection = collection.query(params[:query]) if params[:query]
+    collection = collection.query(params[:q]) if params[:q]
     collection = collection.ordered
 
-    @users = collection.paginate(:page => params[:page])
+    @roles = User.group(:role).count
+    @users = collection.paginate(page: (params[:page] || 1).to_i)
   end
 
   private
 
   def safe_params
-    params.require(:user).permit(:name, :username, :email, :password, :password_confirmation, :subscribe, :unsubscribe, :publisher_id)
+    params.require(:user).permit(:name,
+                                 :email,
+                                 :subscribe,
+                                 :unsubscribe,
+                                 :role,
+                                 :publisher_id,
+                                 :authentication_token)
   end
 end

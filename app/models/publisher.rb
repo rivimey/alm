@@ -1,37 +1,87 @@
-# $HeadURL$
-# $Id$
-#
-# Copyright (c) 2009-2014 by Public Library of Science, a non-profit corporation
-# http://www.plos.org/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 class Publisher < ActiveRecord::Base
   # include HTTP request helpers
   include Networkable
 
   has_many :users
-  has_many :articles
-  has_many :publisher_options, :dependent => :destroy
+  has_many :works
+  has_many :publisher_options
   has_many :sources, :through => :publisher_options
+  has_many :relations
+  has_many :contributions
 
   serialize :prefixes
   serialize :other_names
 
-  validates :name, :presence => true
-  validates :crossref_id, :presence => true, :uniqueness => true
+  validates :title, :presence => true
+  validates :name, :presence => true, :uniqueness => true
 
-  def to_param  # overridden, use crossref_id instead of id
-    crossref_id
+  after_commit :update_cache, :on => :create
+
+  scope :order_by_name, -> { order("publishers.title") }
+  scope :active, -> { where(active: true).order_by_name }
+  scope :inactive, -> { where(active: false).order_by_name }
+  scope :query, ->(query) { where("title like ?", "%#{query}%") }
+
+  # convert CSL into format that the database understands
+  # don't update nil values
+  def self.from_csl(item)
+    { title: item.fetch("title", nil),
+      prefixes: item.fetch("prefixes", nil),
+      other_names: item.fetch("other_names", nil),
+      registration_agency: item.fetch("registration_agency", nil),
+      checked_at: item.fetch("issued", Time.now.utc.iso8601),
+      active: item.fetch("active", nil) }.compact
+  end
+
+  def to_param  # overridden, use name instead of id
+    name
+  end
+
+  def work_count
+    if ActionController::Base.perform_caching
+      Rails.cache.read("publisher/#{name}/work_count/#{timestamp}").to_i
+    else
+      works.size
+    end
+  end
+
+  def work_count=(time)
+    Rails.cache.write("publisher/#{name}/work_count/#{time}",
+                      works.size)
+  end
+
+  def work_count_by_source(source_id)
+    if ActionController::Base.perform_caching
+      Rails.cache.read("publisher/#{name}/#{source_id}/work_count/#{timestamp}").to_i
+    else
+      works.has_results.by_source(source_id).size
+    end
+  end
+
+  def work_count_by_source=(source_id, time)
+    Rails.cache.write("publisher/#{name}/#{source_id}/work_count/#{time}",
+                      works.has_results.by_source(source_id).size)
+  end
+
+  def cache_key
+    "publisher/#{name}-#{timestamp}"
+  end
+
+  def timestamp
+    cached_at.utc.iso8601
+  end
+
+  def update_cache
+    CacheJob.perform_later(self)
+  end
+
+  def write_cache
+    # update cache_key as last step so that we have the old version until we are done
+    now = Time.zone.now
+
+    send("work_count=", now.utc.iso8601)
+    Source.active.each { |source| send("work_count_by_source=", source.id, now.utc.iso8601) }
+
+    update_column(:cached_at, now)
   end
 end

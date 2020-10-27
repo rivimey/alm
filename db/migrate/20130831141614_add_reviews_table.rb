@@ -2,7 +2,7 @@ class AddReviewsTable < ActiveRecord::Migration
   def up
     create_table :filters do |t|
       t.string   :type, null: false
-      t.string   :name, null: false
+      t.string   :name, null: false, limit: 191
       t.string   :display_name, null: false
       t.text     :description
       t.boolean  :active, default: true
@@ -10,7 +10,7 @@ class AddReviewsTable < ActiveRecord::Migration
     end
 
     create_table :reviews do |t|
-      t.string :name
+      t.string :name, limit: 191
       t.integer :state_id
       t.text :message
       t.integer :input
@@ -49,7 +49,7 @@ class AddReviewsTable < ActiveRecord::Migration
     remove_column :sources, :refreshable
 
     # Make sure no null value exist
-    Source.update_all({:disable_until => Time.zone.now}, {:disable_until => nil})
+    Source.where(disable_until: nil).update_all(disable_until: Time.zone.now)
 
     # Change the column to not allow null
     change_column :sources, :disable_until, :datetime, null: false, default: '1970-01-01 00:00:00'

@@ -1,52 +1,42 @@
-# encoding: UTF-8
-
 class ReportMailer < ActionMailer::Base
-  default :from => CONFIG[:notification_email]
+  default :from => ENV['ADMIN_EMAIL']
 
   def send_error_report(report)
     return if report.users.empty?
 
     @reviews = Review.daily_report
-    mail(to: report.users.map(&:email).join(","), subject: "[ALM] Error Report")
+    mail(to: report.users.map(&:email).join(","), subject: "[#{ENV['SITENAME']}] Error Report")
   end
 
   def send_fatal_error_report(report, message)
     return if report.users.empty?
 
     @message = message
-    mail(to: report.users.map(&:email).join(","), subject: "[ALM] Fatal Error Report")
+    mail(to: report.users.map(&:email).join(","), subject: "[#{ENV['SITENAME']}] Fatal Error Report")
   end
 
   def send_status_report(report)
     return if report.users.empty?
 
-    @status = Status.new
+    @status = Status.first_or_create
 
-    mail(to: report.users.map(&:email).join(","), subject: "[ALM] Status Report")
+    mail(to: report.users.map(&:email).join(","), subject: "[#{ENV['SITENAME']}] Status Report")
   end
 
-  def send_article_statistics_report(report)
+  def send_work_statistics_report(report)
     return if report.users.empty?
 
-    @articles_count = Article.count
+    @status = Status.first_or_create
 
-    mail(to: CONFIG[:notification_email],
+    mail(to: ENV['ADMIN_EMAIL'],
          bcc: report.users.map(&:email).join(","),
-         subject: "[ALM] Article Statistics Report")
+         subject: "[#{ENV['SITENAME']}] Work Statistics Report")
   end
 
   def send_stale_source_report(report, source_ids)
     return if report.users.empty?
 
-    @sources = Source.find(source_ids)
-    mail(to: report.users.map(&:email).join(","), subject: "[ALM] Stale Source Report")
-  end
-
-  def send_missing_workers_report(report)
-    return if report.users.empty?
-
-    @workers_count = Worker.count
-
-    mail(to: report.users.map(&:email).join(","), subject: "[ALM] Missing Workers Report")
+    @sources = Source.where(id: source_ids).all
+    mail(to: report.users.map(&:email).join(","), subject: "[#{ENV['SITENAME']}] Stale Source Report")
   end
 end

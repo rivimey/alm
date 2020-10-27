@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: card
 title: "DataCite"
 ---
 
@@ -8,18 +8,18 @@ title: "DataCite"
 <table width=100% border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
-<td valign="top" width=30%><strong>ALM Name</strong></td>
+<td valign="top" width=30%><strong>Lagotto Name</strong></td>
 <td valign="top" width=70%>datacite</td>
 </tr>
 <tr>
-<td valign="top" width=20%><strong>ALM Configuration</strong></td>
+<td valign="top" width=20%><strong>Lagotto Configuration</strong></td>
 <td valign="top" width=80%>default</td>
 </tr>
 <tr>
-<td valign="top" width=20%><strong>ALM Core Attributes</strong></td>
+<td valign="top" width=20%><strong>Lagotto Core Attributes</strong></td>
 <td valign="top" width=80%>url (as DOI)<br/>contributor (as creator)</td>
 </tr>
-<td valign="top" width=20%><strong>ALM Other Attributes</strong></td>
+<td valign="top" width=20%><strong>Lagotto Other Attributes</strong></td>
 <td valign="top" width=80%>title<br/>publisher</td>
 </tr>
 <tr>
@@ -91,7 +91,7 @@ title: "DataCite"
 ```
 
 ## Source Code
-The source code is available [here](https://github.com/articlemetrics/alm/blob/master/app/models/sources/datacite.rb).
+The source code is available [here](https://github.com/lagotto/lagotto/blob/master/app/models/sources/datacite.rb).
 
 ## Further Documentation
 * [DataCite Metadata Search](http://search.datacite.org/help.html)

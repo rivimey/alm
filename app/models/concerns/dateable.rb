@@ -1,23 +1,3 @@
-# encoding: UTF-8
-
-# $HeadURL$
-# $Id$
-#
-# Copyright (c) 2009-2014 by Public Library of Science, a non-profit corporation
-# http://www.plos.org/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 module Dateable
   extend ActiveSupport::Concern
 
@@ -25,9 +5,11 @@ module Dateable
 
     # Array of hashes in format [{ month: 12, year: 2013 },{ month: 1, year: 2014 }]
     # Provide starting month and year as input, otherwise defaults to this month
+    # we use Time.zone.now instead of Date.today because of time zone differences
+    # in dates, and for more consistent mocking in tests
     # PMC is only providing stats until the previous month
     def date_range(options = {})
-      end_date = Date.today
+      end_date = Time.zone.now.to_date
       end_date -= 1.month if self.class.name == 'Pmc'
 
       return [{ month: end_date.month, year: end_date.year }] unless options[:month] && options[:year]
@@ -40,16 +22,39 @@ module Dateable
     end
 
     def get_date_parts(iso8601_time)
-      return nil if iso8601_time.nil?
+      return { "date_parts" => [[]] } if iso8601_time.nil?
 
       year = iso8601_time[0..3].to_i
       month = iso8601_time[5..6].to_i
       day = iso8601_time[8..9].to_i
-      { 'date-parts' => [[year, month, day]] }
+      { 'date-parts' => [[year, month, day].reject { |part| part == 0 }] }
+    end
+
+    def get_year_month(iso8601_time)
+      return [] if iso8601_time.nil?
+
+      year = iso8601_time[0..3]
+      month = iso8601_time[5..6]
+
+      [year.to_i, month.to_i].reject { |part| part == 0 }
+    end
+
+    def get_year_month_day(iso8601_time)
+      return [] if iso8601_time.nil?
+
+      year = iso8601_time[0..3]
+      month = iso8601_time[5..6]
+      day = iso8601_time[8..9]
+
+      [year.to_i, month.to_i, day.to_i].reject { |part| part == 0 }
     end
 
     def get_date_parts_from_parts(year, month = nil, day = nil)
-      { 'date-parts' => [[year, month, day].reject(&:blank?)] }
+      { 'date-parts' => [[year.to_i, month.to_i, day.to_i].reject { |part| part == 0 }] }
+    end
+
+    def get_date_from_parts(year, month = nil, day = nil)
+      [year.to_s.rjust(4, '0'), month.to_s.rjust(2, '0'), day.to_s.rjust(2, '0')].reject { |part| part == "00" }.join("-")
     end
   end
 end

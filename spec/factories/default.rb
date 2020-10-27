@@ -1,165 +1,223 @@
-# encoding: UTF-8
-
 FactoryGirl.define do
 
-  factory :article do
+  factory :work, aliases: [:related_work] do
+    sequence(:pid) { |n| "http://doi.org/10.1371/journal.pone.00000#{n}" }
     sequence(:doi) { |n| "10.1371/journal.pone.00000#{n}" }
     sequence(:pmid) { |n| "1897483#{n}" }
-    pmcid 2568856
-    mendeley_uuid "46cb51a0-6d08-11df-afb8-0026b95d30b2"
+    registration_agency "crossref"
+    sequence(:canonical_url) { |n| "http://journals.plos.org/plosone/article?id=10.1371/journal.pone.00000#{n}" }
     title 'Defrosting the Digital Library: Bibliographic Tools for the Next Generation Web'
-    year { Time.zone.now.year - 1 }
-    month { Time.zone.now.month }
-    day { Time.zone.now.day }
+    year { Time.zone.now.to_date.year - 1 }
+    month { Time.zone.now.to_date.month }
+    day { Time.zone.now.to_date.day }
+    tracked true
+    csl {{}}
 
     trait(:cited) { doi '10.1371/journal.pone.0000001' }
     trait(:uncited) { doi '10.1371/journal.pone.0000002' }
     trait(:not_publisher) { doi '10.1007/s00248-010-9734-2' }
-    trait(:missing_mendeley) { mendeley_uuid nil }
-
-    factory :article_with_events do
-      retrieval_statuses { |article| [article.association(:retrieval_status)] }
+    trait(:published_today) do
+      year { Time.zone.now.to_date.year }
+      month { Time.zone.now.to_date.month }
+      day { Time.zone.now.to_date.day }
+      after :create do |work|
+        FactoryGirl.create(:result, updated_at: Time.zone.now, work: work)
+      end
     end
-
-    factory :article_with_events_and_alerts do
-      retrieval_statuses { |article| [article.association(:retrieval_status)] }
-      alerts { |article| [article.association(:alert)] }
-    end
-
-    factory :stale_articles do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :stale)] }
-    end
-
-    factory :queued_articles do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :queued)] }
-    end
-
-    factory :refreshed_articles do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :refreshed)] }
-    end
-
-    factory :article_for_feed do
-      date = Date.today - 1.day
-      year { date.year }
-      month { date.month }
-      day { date.day }
-      retrieval_statuses { |article| [article.association(:retrieval_status, retrieved_at: date)] }
-    end
-
-    factory :article_published_today do
-      year { Time.zone.now.year }
-      retrieval_statuses { |article| [article.association(:retrieval_status, retrieved_at: Time.zone.today)] }
-    end
-
-    factory :article_with_errors do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :with_errors)] }
-    end
-
-    factory :article_with_private_citations do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :with_private)] }
-    end
-
-    factory :article_with_crossref_citations do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :with_crossref)] }
-    end
-
-    factory :article_with_pubmed_citations do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :with_pubmed)] }
-    end
-
-    factory :article_with_mendeley_events do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :with_mendeley)] }
-    end
-
-    factory :article_with_nature_citations do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :with_pubmed)] }
-    end
-
-    factory :article_with_researchblogging_citations do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :with_researchblogging)] }
-    end
-
-    factory :article_with_wos_citations do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :with_wos)] }
-    end
-
-    factory :article_with_counter_citations do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :with_counter)] }
-    end
-
-    factory :article_with_tweets do
-      retrieval_statuses { |article| [article.association(:retrieval_status, :with_twitter_search)] }
-    end
-  end
-
-  factory :retrieval_status do
-    event_count 50
-    event_metrics do
-      { :pdf => nil,
-        :html => nil,
-        :shares => 50,
-        :groups => nil,
-        :comments => nil,
-        :likes => nil,
-        :citations => nil,
-        :total => 50 }
-    end
-    retrieved_at { Time.zone.now - 1.month }
-    sequence(:scheduled_at) { |n| Time.zone.now - 1.day + n.minutes }
-
-    association :article
-    association :source, factory: :citeulike
-
-    trait(:missing_mendeley) do
-      association :article, :missing_mendeley, factory: :article
-      association :source, factory: :mendeley
-    end
-    trait(:stale) { scheduled_at 1.month.ago }
-    trait(:queued) { queued_at 1.hour.ago }
-    trait(:refreshed) { scheduled_at 1.month.from_now }
-    trait(:staleness) { association :source, factory: :citeulike }
-    trait(:with_errors) { event_count 0 }
-    trait(:with_private) { association :source, private: true }
-    trait(:with_crossref) { association :source, factory: :crossref }
-    trait(:with_mendeley) { association :source, factory: :mendeley }
-    trait(:with_pubmed) { association :source, factory: :pub_med }
-    trait(:with_nature) { association :source, factory: :nature }
-    trait(:with_wos) { association :source, factory: :wos }
-    trait(:with_researchblogging) { association :source, factory: :researchblogging }
-    trait(:with_scienceseeker) { association :source, factory: :scienceseeker }
-    trait(:with_wikipedia) { association :source, factory: :wikipedia }
-    trait(:with_counter) { association :source, factory: :counter }
-    trait(:with_twitter_search) { association :source, factory: :twitter_search }
-    trait(:with_article_published_today) { association :article, factory: :article_published_today }
-    trait(:with_counter_and_article_published_today) do
-      association :article, factory: :article_published_today
-      association :source, factory: :counter
-    end
-    trait(:with_crossref_and_article_published_today) do
-      association :article, factory: :article_published_today
-      association :source, factory: :crossref
-    end
-
-    trait(:with_crossref_histories) do
-      before(:create) do |retrieval_status|
-        FactoryGirl.create_list(:retrieval_history, 20, retrieval_status: retrieval_status,
-                                                        article: retrieval_status.article,
-                                                        source: retrieval_status.source)
+    trait(:published_yesterday) do
+      year { (Time.zone.now.to_date - 1.day).year }
+      month { (Time.zone.now.to_date - 1.day).month }
+      day { (Time.zone.now.to_date - 1.day).day }
+      after :create do |work|
+        FactoryGirl.create(:result, updated_at: Time.zone.now - 1.day, work: work)
       end
     end
 
-    initialize_with { RetrievalStatus.find_or_create_by_article_id_and_source_id(article.id, source.id) }
+    trait :with_events do
+      after :create do |work|
+        FactoryGirl.create_list(:result, 5, work: work)
+      end
+    end
+
+    trait :with_relations do
+      after :create do |work|
+        FactoryGirl.create_list(:relation, 5, work: work)
+      end
+    end
+
+    factory :work_with_ids do
+      sequence(:pmcid) { |n| "256885#{n}" }
+      sequence(:wos) { |n| "00023796690000#{n}" }
+      sequence(:scp) { |n| "3384533872#{n}" }
+      sequence(:ark) { |n| "ark:/13030/m5br8st#{n}" }
+    end
+
+    factory :work_with_events_and_alerts do
+      after :create do |work|
+        FactoryGirl.create(:result, work: work)
+        FactoryGirl.create(:notification, work: work)
+      end
+    end
+
+    factory :work_with_errors do
+      after :create do |work|
+        FactoryGirl.create(:result, :with_errors, work: work)
+      end
+    end
+
+    factory :work_with_private_citations do
+      after :create do |work|
+        FactoryGirl.create(:result, :with_private, work: work)
+      end
+    end
+
+    factory :work_with_crossref do
+      after :create do |work|
+        FactoryGirl.create(:result, :with_crossref, work: work)
+      end
+    end
+
+    factory :work_with_pubmed do
+      after :create do |work|
+        FactoryGirl.create(:result, :with_pubmed, work: work)
+      end
+    end
+
+    factory :work_with_mendeley do
+      after :create do |work|
+        FactoryGirl.create(:result, :with_mendeley, work: work)
+      end
+    end
+
+    factory :work_with_crossref_and_mendeley do
+      after :create do |work|
+        FactoryGirl.create(:result, :with_crossref, work: work)
+        FactoryGirl.create(:result, :with_mendeley, work: work)
+      end
+    end
+
+    factory :work_with_nature do
+      after :create do |work|
+        FactoryGirl.create(:result, :with_nature, work: work)
+      end
+    end
+
+    factory :work_with_researchblogging do
+      after :create do |work|
+        FactoryGirl.create(:result, :with_researchblogging, work: work)
+      end
+    end
+
+    factory :work_with_wos do
+      after :create do |work|
+        FactoryGirl.create(:result, :with_wos, work: work)
+      end
+    end
+
+    factory :work_with_counter do
+      after :create do |work|
+        FactoryGirl.create(:result, :with_counter, work: work)
+      end
+    end
+
+    factory :work_with_twitter do
+      after :create do |work|
+        FactoryGirl.create(:result, :with_twitter, work: work)
+      end
+    end
   end
 
-  factory :delayed_job do
-    queue 'citeulike-queue'
+  factory :result do
+    total 25
 
-    initialize_with { DelayedJob.find_or_create_by_queue(queue) }
+    association :work
+    association :source
+
+    trait(:with_private) { association :source, private: true }
+    trait(:with_mendeley) do
+      total 10
+      association :source, :mendeley
+    end
+    trait(:with_pubmed) { association :source, :pub_med }
+    trait(:with_nature) do
+      association :source, :nature
+    end
+    trait(:with_wos) { association :source, :wos }
+    trait(:with_researchblogging) do
+      association :source, :researchblogging
+    end
+    trait(:with_scienceseeker) do
+      association :source, :scienceseeker
+    end
+    trait(:with_wikipedia) { association :source, :wikipedia }
+    trait(:with_twitter) do
+      association :source, :twitter
+    end
+    trait(:with_counter) do
+      total 500
+      association :source, :nature
+    end
+
+    trait(:with_work_published_today) { association :work, :published_today }
+
+    trait(:with_crossref) do
+      association :work, :published_yesterday
+      association :source, :crossref
+    end
+
+    trait(:with_crossref_last_month) do
+      association :source, :crossref
+      after :create do |result|
+        last_month = Time.zone.now.to_date - 1.month
+        FactoryGirl.create(:month, result: result,
+                                   work: result.work,
+                                   source: result.source,
+                                   year: last_month.year,
+                                   month: last_month.month,
+                                   total: 20)
+      end
+    end
+
+    trait(:with_crossref_current_month) do
+      association :source, :crossref
+      after :create do |result|
+        FactoryGirl.create(:month, result: result,
+                                   work: result.work,
+                                   source: result.source,
+                                   year: Time.zone.now.to_date.year,
+                                   month: Time.zone.now.to_date.month,
+                                   total: result.total)
+      end
+    end
+
+    initialize_with { Result.where(work_id: work.id, source_id: source.id).first_or_initialize }
+  end
+
+  factory :month do
+    year 2015
+    month 4
+
+    association :work
+    association :result
+    association :source
+
+    trait(:with_work) do
+      association :work, :published_today
+      after :build do |month|
+        if month.work.results.any?
+          month.result_id = month.work.results.first.id
+        else
+          month.result = FactoryGirl.create(:result, work: month.work)
+        end
+      end
+    end
+
+    initialize_with { Month.where(work_id: work.id, source_id: source.id, result_id: result.id).first_or_initialize }
   end
 
   factory :report do
     name 'error_report'
-    display_name 'Error Report'
+    title 'Error Report'
     description 'Reports error summary'
 
     factory :error_report_with_admin_user do
@@ -168,49 +226,41 @@ FactoryGirl.define do
 
     factory :status_report_with_admin_user do
       name 'status_report'
-      display_name 'Status Report'
+      title 'Status Report'
       description 'Reports application status'
       users { [FactoryGirl.create(:user, role: "admin")] }
     end
 
-    factory :article_statistics_report_with_admin_user do
-      name 'article_statistics_report'
-      display_name 'Article Statistics Report'
-      description 'Generates CSV file with ALM for all articles'
+    factory :work_statistics_report_with_admin_user do
+      name 'work_statistics_report'
+      title 'Article Statistics Report'
+      description 'Generates CSV file with ALM for all works'
       users { [FactoryGirl.create(:user, role: "admin")] }
     end
 
     factory :fatal_error_report_with_admin_user do
       name 'fatal_error_report'
-      display_name 'Fatal Error Report'
+      title 'Fatal Error Report'
       description 'Reports when a fatal error has occured'
       users { [FactoryGirl.create(:user, role: "admin")] }
     end
 
     factory :stale_source_report_with_admin_user do
       name 'stale_source_report'
-      display_name 'Stale Source Report'
+      title 'Stale Source Report'
       description 'Reports when a source has not been updated'
       users { [FactoryGirl.create(:user, role: "admin")] }
     end
 
     factory :missing_workers_report_with_admin_user do
       name 'missing_workers_report'
-      display_name 'Missing Workers Report'
+      title 'Missing Workers Report'
       description 'Reports when workers are not running'
       users { [FactoryGirl.create(:user, role: "admin")] }
     end
   end
 
-  factory :retrieval_history do
-    sequence(:retrieved_at) do |n|
-      Date.stub(:today).and_return(Date.new(2013, 9, 5))
-      Date.today - n.weeks
-    end
-    sequence(:event_count) { |n| 1000 - 10 * n }
-  end
-
-  factory :alert do
+  factory :notification do
     exception "An exception"
     class_name "Net::HTTPRequestTimeOut"
     message "The request timed out."
@@ -223,7 +273,7 @@ FactoryGirl.define do
     status 408
     content_type "text/html"
 
-    factory :alert_with_source do
+    factory :notification_with_source do
       source
     end
   end
@@ -231,6 +281,7 @@ FactoryGirl.define do
   factory :api_request do
     db_duration 100
     view_duration 700
+    duration 800
     api_key "67890"
     info "history"
     source nil
@@ -241,89 +292,337 @@ FactoryGirl.define do
 
   factory :api_response do
     duration 200
-    event_count 10
-    previous_count 5
+    agent_id 1
+  end
+
+  factory :change do
+    total 10
+    previous_total 5
     update_interval 7
     unresolved 1
     source_id 1
   end
 
   factory :review do
-    name "ArticleNotUpdatedError"
-    message "Found 0 article not updated errors in 29,899 API responses, taking 29.899 ms"
+    name "WorkNotUpdatedError"
+    message "Found 0 work not updated errors in 29,899 API responses, taking 29.899 ms"
     input 10
     created_at { Time.zone.now }
   end
 
   factory :user do
-    sequence(:username) { |n| "joesmith#{n}" }
-    sequence(:name) { |n| "Joe Smith#{n}" }
     sequence(:email) { |n| "joe#{n}@example.com" }
-    password "joesmith"
+    sequence(:name) { |n| "Joe Smith#{n}" }
     sequence(:authentication_token) { |n| "q9pWP8QxzkR24Mvs9BEy#{n}" }
-    role "admin"
     provider "cas"
-    uid "12345"
+    sequence(:uid) { |n| "joe#{n}@example.com" }
 
     factory :admin_user do
       role "admin"
       authentication_token "12345"
+    end
+
+    initialize_with { User.where(authentication_token: authentication_token).first_or_initialize }
+  end
+
+  factory :publisher do
+    name "340"
+    title 'Public Library of Science (PLoS)'
+    other_names ["Public Library of Science", "Public Library of Science (PLoS)"]
+    prefixes ["10.1371"]
+    registration_agency "crossref"
+    active true
+
+    initialize_with { Publisher.where(name: name).first_or_initialize }
+  end
+
+  factory :publisher_option do
+    id 1
+    agent_id 1
+    publisher_id 1
+    username "username"
+    password "password"
+
+    publisher
+
+    initialize_with { PublisherOption.where(id: id).first_or_initialize }
+
+    factory :publisher_option_for_pmc do
+      journals "plosbiol"
     end
   end
 
   factory :html_ratio_too_high_error, class: HtmlRatioTooHighError do
     type "HtmlRatioTooHighError"
     name "HtmlRatioTooHighError"
-    display_name "html ratio too high error"
+    title "html ratio too high error"
     active true
 
-    initialize_with { HtmlRatioTooHighError.find_or_create_by_name(name) }
+    initialize_with { HtmlRatioTooHighError.where(name: name).first_or_initialize }
   end
 
-  factory :article_not_updated_error, aliases: [:filter], class: ArticleNotUpdatedError do
-    type "ArticleNotUpdatedError"
-    name "ArticleNotUpdatedError"
-    display_name "article not updated error"
+  factory :work_not_updated_error, aliases: [:filter], class: WorkNotUpdatedError do
+    type "WorkNotUpdatedError"
+    name "WorkNotUpdatedError"
+    title "work not updated error"
     active true
 
-    initialize_with { ArticleNotUpdatedError.find_or_create_by_name(name) }
+    initialize_with { WorkNotUpdatedError.where(name: name).first_or_initialize }
   end
 
   factory :decreasing_event_count_error, class: EventCountDecreasingError do
     type "EventCountDecreasingError"
     name "EventCountDecreasingError"
-    display_name "decreasing event count error"
+    title "decreasing event count error"
     source_ids [1]
     active true
 
-    initialize_with { EventCountDecreasingError.find_or_create_by_name(name) }
+    initialize_with { EventCountDecreasingError.where(name: name).first_or_initialize }
   end
 
   factory :increasing_event_count_error, class: EventCountIncreasingTooFastError do
     type "EventCountIncreasingTooFastError"
     name "EventCountIncreasingTooFastError"
-    display_name "increasing event count error"
+    title "increasing event count error"
     source_ids [1]
     active true
 
-    initialize_with { EventCountIncreasingTooFastError.find_or_create_by_name(name) }
-  end
-
-  factory :api_too_slow_error, class: ApiResponseTooSlowError do
-    type "ApiResponseTooSlowError"
-    name "ApiResponseTooSlowError"
-    display_name "API too slow error"
-    active true
-
-    initialize_with { ApiResponseTooSlowError.find_or_create_by_name(name) }
+    initialize_with { EventCountIncreasingTooFastError.where(name: name).first_or_initialize }
   end
 
   factory :source_not_updated_error, class: SourceNotUpdatedError do
     type "SourceNotUpdatedError"
     name "SourceNotUpdatedError"
-    display_name "source not updated error"
+    title "source not updated error"
     active true
 
-    initialize_with { SourceNotUpdatedError.find_or_create_by_name(name) }
+    initialize_with { SourceNotUpdatedError.where(name: name).first_or_initialize }
+  end
+
+  factory :work_type do
+    name "article-journal"
+    title "Journal Article"
+    container "Journal"
+
+    initialize_with { WorkType.where(name: name).first_or_initialize }
+  end
+
+  factory :relation_type do
+    name "is_cited_by"
+    title "Is cited by"
+    inverse_name "cites"
+
+    trait(:inverse) do
+      name "cites"
+      title "Cites"
+      inverse_name "is_cited_by"
+    end
+
+    trait(:has_part) do
+      name "has_part"
+      title "Has part"
+      inverse_name "is_part_of"
+    end
+
+    trait(:is_part_of) do
+      name "is_part_of"
+      title "Is part of"
+      inverse_name "has_part"
+    end
+
+    trait(:bookmarks) do
+      name "bookmarks"
+      title "Bookmarks"
+      inverse_name "is_bookmarked_by"
+    end
+
+    trait(:is_discussed_by) do
+      name "is_discussed_by"
+      title "Is discussed by"
+      inverse_name "discusses"
+    end
+
+    trait(:is_viewed_by) do
+      name "is_viewed_by"
+      title "Is viewed by"
+      inverse_name "views"
+    end
+
+    trait(:is_bookmarked_by) do
+      name "is_bookmarked_by"
+      title "Is bookmarked by"
+      inverse_name "bookmarks"
+    end
+
+    trait(:is_supplement_to) do
+      name "is_supplement_to"
+      title "Is supplement to"
+      inverse_name "has_supplement"
+    end
+
+    trait(:has_supplement) do
+      name "has_supplement"
+      title "Has supplement"
+      inverse_name "is_supplement_to"
+    end
+
+    trait(:is_compiled_by) do
+      name "is_compiled_by"
+      title "Is compiled by"
+      inverse_name "compiles"
+    end
+
+    initialize_with { RelationType.where(name: name).first_or_initialize }
+  end
+
+  factory :relation do
+    association :work
+    association :related_work
+    association :source
+    association :month
+    association :relation_type, :is_bookmarked_by
+  end
+
+  factory :status do
+    current_version "3.13"
+  end
+
+  factory :deposit do
+    uuid { SecureRandom.uuid }
+    message_type "relation"
+    prefix "10.1371"
+    source_id "citeulike"
+    source_token "citeulike_123"
+    subj_id "http://www.citeulike.org/user/dbogartoit"
+    subj {{ "pid"=>"http://www.citeulike.org/user/dbogartoit",
+            "author"=>[{ "given"=>"dbogartoit" }],
+            "title"=>"CiteULike bookmarks for user dbogartoit",
+            "container-title"=>"CiteULike",
+            "issued"=>"2006-06-13T16:14:19Z",
+            "URL"=>"http://www.citeulike.org/user/dbogartoit",
+            "type"=>"entry",
+            "tracked"=> false }}
+    obj_id "http://doi.org/10.1371/journal.pmed.0030186"
+    relation_type_id "bookmarks"
+    updated_at { Time.zone.now }
+    occurred_at { Time.zone.now }
+
+    factory :deposit_for_datacite_related do
+      source_id "datacite_related"
+      source_token "datacite_related_123"
+      prefix "10.5061"
+      subj_id "http://doi.org/10.5061/DRYAD.47SD5"
+      subj nil
+      obj_id "http://doi.org/10.5061/DRYAD.47SD5/1"
+      relation_type_id "has_part"
+      publisher_id "CDL.DRYAD"
+
+      trait :with_works do
+        association :work, pid: "http://doi.org/10.5061/DRYAD.47SD5"
+        association :related_work, factory: :work, pid: "http://doi.org/10.5061/DRYAD.47SD5/1"
+      end
+    end
+
+    factory :deposit_for_datacite_orcid do
+      message_type "contribution"
+      source_id "datacite_orcid"
+      source_token "datacite_orcid_123"
+      prefix "10.5061"
+      subj_id "http://orcid.org/0000-0002-4133-2218"
+      subj nil
+      obj_id "http://doi.org/10.1594/PANGAEA.733793"
+      publisher_id "TIB.PANGAEA"
+
+      trait :with_contributor_and_work do
+        association :contributor, pid: "http://orcid.org/0000-0002-4133-2218"
+        association :work, pid: "http://doi.org/10.1594/PANGAEA.733793"
+      end
+    end
+
+    factory :deposit_for_datacite_github do
+      source_id "datacite_github"
+      source_token "datacite_github_123"
+      prefix "10.5281"
+      subj_id "http://doi.org/10.5281/ZENODO.16668"
+      subj nil
+      obj_id "https://github.com/konradjk/loftee/tree/v0.2.1-beta"
+      relation_type_id "is_supplement_to"
+      publisher_id "CERN.ZENODO"
+    end
+
+    factory :deposit_for_contributor do
+      message_type "contribution"
+      source_id "datacite_orcid"
+      source_token "datacite_orcid_123"
+      subj_id "http://orcid.org/0000-0002-0159-2197"
+      obj_id nil
+
+      trait :invalid_orcid do
+        subj_id "555-1212"
+      end
+    end
+
+    factory :deposit_for_publisher do
+      message_type "publisher"
+      source_id "datacite_datacentre"
+      source_token "datacite_datacentre_123"
+      subj_id "ANDS.CENTRE-1"
+      subj {{ "name"=>"ANDS.CENTRE-1",
+              "title"=>"Griffith University",
+              "issued"=>"2006-06-13T16:14:19Z",
+              "registration_agency"=>"datacite",
+              "active"=>true }}
+
+      trait :no_publisher_title do
+        subj {{ "name"=>"ANDS.CENTRE-1",
+                "issued"=>"2006-06-13T16:14:19Z",
+                "registration_agency"=>"datacite",
+                "active"=>true }}
+      end
+    end
+  end
+
+  factory :contributor do
+    pid "http://orcid.org/0000-0002-0159-2197"
+
+    trait :with_works do
+      after :create do |contributor|
+        FactoryGirl.create_list(:contribution, 5, contributor: contributor)
+      end
+    end
+
+    initialize_with { Contributor.where(pid: pid).first_or_initialize }
+  end
+
+  factory :contribution do
+    association :contributor
+    association :work
+    association :source, :datacite_orcid
+  end
+
+  factory :data_export do
+    sequence(:name){ |i| "Zenodo Export #{i}"}
+    sequence(:url){ |i| "http://example.com/#{i}"}
+  end
+
+  factory :api_snapshot, class: ApiSnapshot, parent: :data_export do
+    url "http://example.com/works"
+  end
+
+  factory :zenodo_data_export, class: ZenodoDataExport, parent: :data_export do
+    publication_date Time.zone.now.to_date
+    title "My export"
+    description "My export by Lagotto"
+    files ["path/to/file1.txt"]
+    creators ["John Doe"]
+    keywords ["apples", "oranges", "bananas"]
+    code_repository_url "https://some.code.repository"
+  end
+
+  factory :prefix do
+    prefix "10.1371"
+    registration_agency "datacite"
+
+    initialize_with { Prefix.where(prefix: prefix).first_or_initialize }
   end
 end

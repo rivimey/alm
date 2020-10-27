@@ -1,47 +1,43 @@
-<table class="table table-striped" id="SummaryTable">
-  <tbody>
-    <tr>
-      <th/>
-      <th class="number">Articles&nbsp;with&nbsp;Events</th>
-      <th class="number">All Events</th>
-    </tr>
-    <tr>
-      <th>Events</th>
-      <td class="number" id="article_count"><%= number_hiding_zero(@source.cached_version.fetch('article_count', 0)) %></td>
-      <td class="number" id="event_count"><%= number_hiding_zero(@source.cached_version.fetch('event_count', 0)) %></td>
-    </tr>
+<div class="row work-page">
+  <div class="col-md-9">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <h4 class="work"><%= @source.title %></h4>
+        <div class="description"><%= h(@source.description) %></div>
+      </div>
+      <div class="panel-footer">
+        <%= l @source.cached_at, format: :medium %> <%= state_label(@source.human_state_name).html_safe %>
+        <span class="pull-right"><%= h(@source.group.title) %></span>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <% if can?(:read, Alert) %>
-      <tr>
-        <th/>
-        <th class="number">Pending</th>
-        <th class="number">Working</th>
-      </tr>
-      <tr>
-        <th>Jobs</th>
-        <td class="number" id="pending_count"><%= number_hiding_zero(@source.pending_count) %></td>
-        <td class="number" id="working_count"><%= number_hiding_zero(@source.working_count) %></td>
-      </tr>
-      <tr>
-        <th/>
-        <th class="number">Responses</th>
-        <th class="number">Errors</th>
-      </tr>
-      <tr>
-        <th>Responses in the last 24 Hours</th>
-        <td class="number" id="response_count"><%= number_hiding_zero(@source.cached_version.fetch('responses', {}).fetch('count', 0)) %></td>
-        <td class="number" id="error_count"><%= link_to_if(@source.alerts.total_errors(1).size > 0, number_hiding_zero(@source.alerts.total_errors(1).size), alerts_path(:source => @source.name)) %></td>
-      </tr>
-      <tr>
-        <th/>
-        <th class="number">Average</th>
-        <th class="number">Maximum</th>
-      </tr>
-      <tr>
-        <th>Response duration in the last 24 Hours (ms)</th>
-        <td class="number" id="average_count"><%= number_hiding_zero(@source.cached_version.fetch('responses', {}).fetch('average', 0)) %></td>
-        <td class="number" id="maximum_count"><%= number_hiding_zero(@source.cached_version.fetch('responses', {}).fetch('maximum', 0)) %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<% if @source.group.name != "other" %>
+  <ul class="nav nav-pills">
+      <li class="active"><a href="#summary" data-toggle="tab" title="Summary">Summary</a></li>
+      <li><a href="#works" data-toggle="tab">Works</a></li>
+      <li><a href="#results" data-toggle="tab">Results</a></li>
+      <li><a href="#documentation" data-toggle="tab" title="Documentation">Documentation</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane active" id="summary">
+        <div id="summary-show">
+          <%= render :partial => 'summary_show', :locals => { :name => @source.name } %>
+        </div>
+      </div>
+      <div class="tab-pane" id="works">
+        <%= render :partial => 'works' %>
+      </div>
+      <div class="tab-pane" id="results">
+        <%= render :partial => 'results_show' %>
+      </div>
+      <div class="tab-pane" id="documentation">
+        <%= render :partial => 'docs/show' %>
+      </div>
+    </div>
+  </div>
+
+  <%= javascript_include_tag 'sources/show' %>
+<% end %>

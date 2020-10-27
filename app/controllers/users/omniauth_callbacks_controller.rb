@@ -1,22 +1,31 @@
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
-  def persona
-    @user = User.find_for_persona_oauth(request.env["omniauth.auth"], current_user) if request.env["omniauth.auth"]
-
-    if @user.persisted?
-      sign_in_and_redirect @user, :event => :authentication # this will throw if @user is not activated
-    else
-      session["devise.persona_data"] = request.env["omniauth.auth"]
-      redirect_to root_path
-    end
+  rescue_from ActiveRecord::RecordInvalid do |exception|
+    redirect_to root_path, :alert => exception.message
   end
 
-  def cas
-    @user = User.find_for_cas_oauth(request.env["omniauth.auth"], current_user) if request.env["omniauth.auth"]
+  def failure
+    flash[:alert] = "Error signing in with #{ENV['OMNIAUTH']}"
+    redirect_to root_path
+  end
+
+  # generic handler for all omniauth providers
+  def action_missing(provider)
+    auth = request.env["omniauth.auth"]
+
+    # provider-specific tweaks to standard omniauth hash
+    case provider
+    when "cas"
+      auth.info.name = auth.extra.name
+      auth.info.email = auth.extra.email
+    end
+
+    @user = User.from_omniauth(auth)
 
     if @user.persisted?
-      sign_in_and_redirect @user, :event => :authentication # this will throw if @user is not activated
+      sign_in_and_redirect @user, :event => :authentication
     else
-      session["devise.cas_data"] = request.env["omniauth.auth"]
+      session["devise.#{provider}_data"] = request.env["omniauth.auth"]
+      flash[:alert] = @user.errors.map { |k,v| "#{k}: #{v}" }.join("<br />").html_safe || "Error signing in with #{provider}"
       redirect_to root_path
     end
   end

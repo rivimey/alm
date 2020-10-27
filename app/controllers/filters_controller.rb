@@ -1,18 +1,15 @@
 class FiltersController < ApplicationController
-  before_filter :load_filter, :only => [ :edit, :update ]
+  before_filter :load_filter, only: [:edit, :update]
   load_and_authorize_resource
 
   def index
     load_index
-    respond_with do |format|
-      format.js { render :index }
-    end
+    render :index
   end
 
   def edit
-    respond_with(@filter) do |format|
-      format.js { render :index }
-    end
+    load_index
+    render :index
   end
 
   def update
@@ -20,9 +17,7 @@ class FiltersController < ApplicationController
     params[:filter][:active] = params[:active] if params[:active]
     @filter.update_attributes(safe_params)
     load_index
-    respond_with(@filter) do |format|
-      format.js { render :index }
-    end
+    render :index
   end
 
   protected

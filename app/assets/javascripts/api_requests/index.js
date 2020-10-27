@@ -1,53 +1,64 @@
-// construct query string
-var params = d3.select("h1#api_key");
-if (!params.empty()) {
-    var api_key = params.attr('data-api_key');
-    var key = params.attr('data-key');
-    var query = encodeURI("/api/v5/api_requests?api_key=" + api_key);
-    if (key != "") query += "&key=" + key;
-};
+/*global d3, crossfilter, formatNumber, formatDate, formatTime, formatFixed */
 
-// load the data from the ALM API
+var params = d3.select("#api_key"),
+    reset_text;
+
+// construct query string
+if (!params.empty()) {
+    var api_key = params.attr('data-api-key');
+    var q = params.attr('data-query');
+    var key = params.attr('data-key');
+    var query = encodeURI("/api/api_requests");
+    if (q !== null) {
+      query += "?q=" + q;
+    } else if (key !== null) {
+      query += "?key=" + key;
+    }
+}
+
+// load the data from the Lagotto API
 if (query) {
-  d3.json(query, function(error, json) {
-    if (error) return console.warn(error);
-    var data = json["data"];
-    crossfilterViz(data);
+  d3.json(query)
+    .header("Accept", "application/json; version=7")
+    .header("Authorization", "Token token=" + api_key)
+    .get(function(error, json) {
+      if (error) { return console.warn(error); }
+      var data = json.api_requests;
+
+      crossfilterViz(data);
   });
 }
 
 // crossfilter visualization
 function crossfilterViz(data) {
 
-  if (!data || data.length == 0) {
+  if (!data || data.length === 0) {
     d3.select("#description").text("")
       .insert("div")
       .attr("class", "alert alert-info")
-      .text("No API requests found");
+      .text("There are currently no API requests");
     d3.select("div#charts").remove();
     d3.select("div#lists").remove();
     return;
   }
 
-  var today = new Date();
-
   // A nest operator, for grouping the request list.
   var nestByDate = d3.nest()
-    .key(function(d) { return d3.time.day.utc(d.date); });
+    .key(function(d) { return d3.time.day.utc(d.timestamp); });
 
   // A little coercion, since the JSON is untyped.
   // expects date in iso8601 format, e.g. 2014-04-15T20:11:23Z
   data.forEach(function(d, i) {
     d.index = i;
-    d.date = new Date(d.date);
+    d.timestamp = new Date(d.timestamp);
   });
 
   // Create the crossfilter for the relevant dimensions and groups.
   var request = crossfilter(data),
       all = request.groupAll(),
-      date = request.dimension(function(d) { return d3.time.day.utc(d.date); }),
+      date = request.dimension(function(d) { return d3.time.day.utc(d.timestamp); }),
       dates = date.group(),
-      hour = request.dimension(function(d) { return d.date.getUTCHours() + d.date.getMinutes() / 60; }),
+      hour = request.dimension(function(d) { return d.timestamp.getUTCHours() + d.timestamp.getMinutes() / 60; }),
       hours = hour.group(Math.floor),
       db_duration = request.dimension(function(d) { return Math.max(-60, Math.min(149, d.db_duration)); }),
       db_durations = db_duration.group(function(d) { return Math.floor(d / 10) * 10; }),
@@ -55,7 +66,6 @@ function crossfilterViz(data) {
       view_durations = view_duration.group(function(d) { return Math.floor(d / 50) * 50; });
 
   var charts = [
-
       barChart()
         .dimension(hour)
         .group(hours)
@@ -67,16 +77,18 @@ function crossfilterViz(data) {
         .dimension(db_duration)
         .group(db_durations)
         .x(d3.scale.linear()
-        .domain([0, 500])
+        .domain([0, 6000])
         .rangeRound([0, 10 * 30])),
 
       barChart()
         .dimension(view_duration)
         .group(view_durations)
         .x(d3.scale.linear()
-        .domain([0, 2000])
+        .domain([0, 6000])
         .rangeRound([0, 10 * 30]))
   ];
+
+  d3.selectAll(".spinner").remove();
 
   // Given our array of charts, which we assume are in the same order as the
   // .req-chart elements in the DOM, bind the charts to the DOM and render them.
@@ -124,11 +136,11 @@ function crossfilterViz(data) {
       var date = d3.select(this).selectAll(".date")
         .data(requestsByDate, function(d) { return d.key; });
 
-      date.enter().append("div")
-        .attr("class", "date")
+      var panel = date.enter().append("div")
+        .attr("class", "date panel panel-default")
         .append("div")
-        .attr("class", "day")
-        .text(function(d) { return formatDate(d.values[0].date); });
+        .attr("class", "panel-heading")
+        .text(function(d) { return formatDate(d.values[0].timestamp); });
 
       date.exit().remove();
 
@@ -140,7 +152,7 @@ function crossfilterViz(data) {
 
       requestEnter.append("div")
         .attr("class", "time")
-        .text(function(d) { return formatTime(d.date); });
+        .text(function(d) { return formatTime(d.timestamp); });
 
       requestEnter.append("div")
         .attr("class", "duration")
@@ -156,7 +168,7 @@ function crossfilterViz(data) {
         .attr("class", "source")
         .append("a")
         .attr("href", function(d) { return "/users?query=" + d.api_key; })
-        .text(function(d) { return d.api_key.substr(0,20); });
+        .text(function(d) { return (typeof d.api_key === "undefined") ? "" : d.api_key.substr(0,20); });
 
       requestEnter.append("div")
         .attr("class", "info")
@@ -177,19 +189,18 @@ function crossfilterViz(data) {
   }
 
   function barChart() {
-    if (!barChart.id) barChart.id = 0;
+    if (!barChart.id) { barChart.id = 0; }
 
     var margin = {top: 10, right: 20, bottom: 20, left: 10},
         x,
         y = d3.scale.linear().range([100, 0]),
         id = barChart.id++,
-        axis = d3.svg.axis().orient("bottom"),
+        axis = d3.svg.axis().orient("bottom").ticks(6),
         brush = d3.svg.brush(),
         brushDirty,
         dimension,
         group,
         round;
-
 
     function chart(div) {
       var width = x.range()[1],
@@ -203,7 +214,8 @@ function crossfilterViz(data) {
 
       // Create the skeletal chart.
       if (g.empty()) {
-        div.select(".req-chart h5").append("a")
+        resetText = div.attr("id");
+        d3.select("#reset-" + resetText).append("a")
             .attr("href", "javascript:reset(" + id + ")")
             .attr("class", "reset")
             .text("reset")
@@ -245,7 +257,8 @@ function crossfilterViz(data) {
       if (brushDirty) {
         brushDirty = false;
         g.selectAll(".brush").call(brush);
-        div.select(".req-chart h5 a").style("display", brush.empty() ? "none" : null);
+        resetText = div.attr("id");
+        d3.select("#reset-" + resetText + " a").style("display", brush.empty() ? "none" : null);
         if (brush.empty()) {
           g.selectAll("#clip-" + id + " rect")
             .attr("x", 0)
@@ -274,13 +287,13 @@ function crossfilterViz(data) {
     }
 
     function resizePath(d) {
-      var e = +(d == "e"),
+      var e = +(d === "e"),
           x = e ? 1 : -1,
           y = height / 3;
-      return "M" + (.5 * x) + "," + y
+      return "M" + (0.5 * x) + "," + y
         + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6)
         + "V" + (2 * y - 6)
-        + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y)
+        + "A6,6 0 0 " + e + " " + (0.5 * x) + "," + (2 * y)
         + "Z"
         + "M" + (2.5 * x) + "," + (y + 8)
         + "V" + (2 * y - 8)
@@ -291,16 +304,19 @@ function crossfilterViz(data) {
 
     brush.on("brushstart.req-chart", function() {
       var div = d3.select(this.parentNode.parentNode.parentNode);
-      div.select(".req-chart h5 a").style("display", null);
+      resetText = div.attr("id");
+      d3.select("#reset-" + resetText + " a").style("display", null);
     });
 
     brush.on("brush.req-chart", function() {
       var g = d3.select(this.parentNode),
         extent = brush.extent();
-      if (round) g.select(".brush")
+      if (round) {
+        g.select(".brush")
         .call(brush.extent(extent = extent.map(round)))
         .selectAll(".resize")
         .style("display", null);
+      }
       g.select("#clip-" + id + " rect")
         .attr("x", x(extent[0]))
         .attr("width", x(extent[1]) - x(extent[0]));
@@ -310,20 +326,21 @@ function crossfilterViz(data) {
     brush.on("brushend.req-chart", function() {
         if (brush.empty()) {
             var div = d3.select(this.parentNode.parentNode.parentNode);
-            div.select(".req-chart h5 a").style("display", "none");
+            resetText = div.attr("id");
+            d3.select("#reset-" + resetText + " a").style("display", "none");
             div.select("#clip-" + id + " rect").attr("x", null).attr("width", "100%");
             dimension.filterAll();
         }
     });
 
     chart.margin = function(_) {
-      if (!arguments.length) return margin;
+      if (!arguments.length) { return margin; }
       margin = _;
       return chart;
     };
 
     chart.x = function(_) {
-      if (!arguments.length) return x;
+      if (!arguments.length) { return x; }
       x = _;
       axis.scale(x);
       brush.x(x);
@@ -331,13 +348,13 @@ function crossfilterViz(data) {
     };
 
     chart.y = function(_) {
-      if (!arguments.length) return y;
+      if (!arguments.length) { return y; }
       y = _;
       return chart;
     };
 
     chart.dimension = function(_) {
-      if (!arguments.length) return dimension;
+      if (!arguments.length) { return dimension; }
       dimension = _;
       return chart;
     };
@@ -355,23 +372,17 @@ function crossfilterViz(data) {
     };
 
     chart.group = function(_) {
-      if (!arguments.length) return group;
+      if (!arguments.length) { return group; }
       group = _;
       return chart;
     };
 
     chart.round = function(_) {
-      if (!arguments.length) return round;
+      if (!arguments.length) { return round; }
       round = _;
       return chart;
     };
 
     return d3.rebind(chart, brush, "on");
   }
-};
-
-// d3 helper functions
-var formatNumber = d3.format(",d"),
-    formatFixed = d3.format(",.0f"),
-    formatDate = d3.time.format.utc("%B %d, %Y"),
-    formatTime = d3.time.format.utc("%H:%M UTC");
+}

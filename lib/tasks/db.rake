@@ -1,162 +1,57 @@
-# encoding: UTF-8
-
-# $HeadURL$
-# $Id$
-#
-# Copyright (c) 2009-2012 by Public Library of Science, a non-profit corporation
-# http://www.plos.org/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 namespace :db do
-  namespace :articles do
-    desc "Bulk-load articles from Crossref API"
-    task :import => :environment do |t, args|
-      # only run if configuration option :import
-      case CONFIG[:import]
-      when "member", "member_sample"
-        member = Publisher.pluck(:crossref_id).join(",")
-        sample = ENV['SAMPLE']
-      when "all", "sample"
-        member = ENV['MEMBER']
-        sample = ENV['SAMPLE']
-      when "sample", "member_sample"
-        sample ||= 20
-      else
-        puts "CrossRef API import not configured"
-        exit
-      end
-
-      options = { from_update_date: ENV['FROM_UPDATE_DATE'],
-                  until_update_date: ENV['UNTIL_UPDATE_DATE'],
-                  from_pub_date: ENV['FROM_PUB_DATE'],
-                  until_pub_date: ENV['UNTIL_PUB_DATE'],
-                  type: ENV['TYPE'],
-                  member: member,
-                  issn: ENV['ISSN'],
-                  sample: sample }
-      import = Import.new(options)
-      number = ENV['SAMPLE'] || import.total_results
-      import.queue_article_import if number.to_i > 0
-      puts "Started import of #{number} articles in the background..."
-    end
-
-    desc "Bulk-load articles from standard input"
-    task :load => :environment do
-      input = []
-      $stdin.each_line { |line| input << ActiveSupport::Multibyte::Unicode.tidy_bytes(line) } unless $stdin.tty?
-
-      number = input.length
-      if number > 0
-        # import in batches of 1,000 articles
-        input.each_slice(1000) do |batch|
-          import = Import.new(file: batch)
-          import.queue_article_import
-        end
-        puts "Started import of #{number} articles in the background..."
-      else
-        puts "No articles to import."
-      end
-    end
-
-    desc "Seed sample articles"
-    task :seed => :environment do
-      before = Article.count
-      ENV['ARTICLES'] = "true"
-      Rake::Task['db:seed'].invoke
-      after = Article.count
-      puts "Seeded #{after - before} articles"
-    end
-
-    desc "Delete articles provided via standard input"
+  namespace :works do
+    desc "Delete works"
     task :delete => :environment do
-      puts "Reading #{CONFIG[:uid]}s from standard input..."
-      valid = []
-      invalid = []
-      missing = []
-      deleted = []
-
-      while (line = STDIN.gets)
-        line = ActiveSupport::Multibyte::Unicode.tidy_bytes(line)
-        raw_uid, raw_other = line.strip.split(" ", 2)
-
-        uid = Article.from_uri(raw_uid.strip).values.first
-        if Article.validate_format(uid)
-          valid << [uid]
-        else
-          puts "Ignoring #{CONFIG[:uid]}: #{raw_uid}"
-          invalid << [raw_uid]
-        end
-      end
-
-      puts "Read #{valid.size} valid entries; ignored #{invalid.size} invalid entries"
-
-      if valid.size > 0
-        valid.each do |uid|
-          existing = Article.where(CONFIG[:uid].to_sym => uid).first
-          if existing
-            existing.destroy
-            deleted << uid
-          else
-            missing << uid
-          end
-        end
-      end
-
-      puts "Deleted #{deleted.size} articles, ignored #{missing.size} articles"
-    end
-
-    desc "Delete all articles"
-    task :delete_all => :environment do
-      before = Article.count
-      Article.destroy_all unless Rails.env.production?
-      after = Article.count
-      puts "Deleted #{before - after} articles, #{after} articles remaining"
-    end
-
-    desc "Add missing sources"
-    task :add_sources, [:date] => :environment do |t, args|
-      if args.date.nil?
-        puts "Date in format YYYY-MM-DD required"
+      if ENV['PUBLISHER_ID'].blank?
+        puts "Please use PUBLISHER_ID environment variable. No work deleted."
         exit
       end
 
-      articles = Article.where("published_on >= ?", args.date)
+      if ENV['SOURCE_ID'].blank?
+        puts "Please use SOURCE_ID environment variable. No work deleted."
+        exit
+      end
 
-      if args.extras.empty?
-        sources = Source.all
+      DeleteWorkJob.perform_later(publisher_id: ENV['PUBLISHER_ID'], source_id: ENV['SOURCE_ID'])
+
+      if ENV['PUBLISHER_ID'] == "all" && ENV['SOURCE_ID'] == "all"
+        puts "Started deleting all works in the background..."
+      elsif ENV['PUBLISHER_ID'] == "all"
+        puts "Started deleting all works for source #{ENV['SOURCE_ID']} in the background..."
+      elsif ENV['SOURCE_ID'] == "all"
+        puts "Started deleting all works from publisher #{ENV['PUBLISHER_ID']} in the background..."
       else
-        sources = Source.where("name in (?)", args.extras)
+        puts "Started deleting all works from publisher #{ENV['PUBLISHER_ID']} for source #{ENV['SOURCE_ID']} in the background..."
       end
-
-      retrieval_statuses = []
-      articles.each do |article|
-        sources.each do |source|
-          retrieval_status = RetrievalStatus.find_or_initialize_by_article_id_and_source_id(article.id, source.id, :scheduled_at => Time.zone.now)
-          if retrieval_status.new_record?
-            retrieval_status.save!
-            retrieval_statuses << retrieval_status
-          end
-        end
-      end
-
-      puts "#{retrieval_statuses.count} retrieval status(es) added for #{sources.count} source(s) and #{articles.count} articles"
     end
 
-    desc "Remove all HTML and XML tags from article titles"
+    desc "Delete canonical url"
+    task :delete_url => :environment do
+      DeleteCanonicalUrlJob.perform_later
+      puts "Started deleting all canonical urls in the background..."
+    end
+
+    desc "Remove all HTML and XML tags from work titles"
     task :sanitize_title => :environment do
-      Article.all.each { |article| article.save }
-      puts "#{Article.count} article titles sanitized"
+      Work.all.each { |work| work.save }
+      puts "#{Work.count} work titles sanitized"
+    end
+
+    desc "Load pids from persistent identifiers"
+    task :load_pids => :environment do
+      Work.where("doi IS NOT NULL").update_all("pid = doi")
+      Work.where("doi IS NOT NULL").update_all(pid_type: "doi")
+      puts "#{Work.count} work pids loaded"
+    end
+
+    desc "Change pids to URLs"
+    task :change_pids => :environment do
+      Work.where("pid_type = 'doi'").update_all("pid = CONCAT('http://doi.org/', doi)")
+      Work.where("pid_type = 'pmid'").update_all("pid = CONCAT('http://www.ncbi.nlm.nih.gov/pubmed/', pmid)")
+      Work.where("pid_type = 'pmcid'").update_all("pid = CONCAT('http://www.ncbi.nlm.nih.gov/pmc/articles/PMC', pmcid)")
+      Work.where("pid_type = 'arxiv'").update_all("pid = CONCAT('http://arxiv.org/abs/', arxiv)")
+      Work.where("pid_type = 'ark'").update_all("pid = CONCAT('http://n2t.net/', ark)")
+      puts "#{Work.count} work pids changed"
     end
 
     desc "Add publication year, month and day"
@@ -170,53 +65,53 @@ namespace :db do
       end
 
       if start_date
-        puts "Adding date parts for all articles published since #{start_date}."
-        articles = Article.where("published_on >= ?", start_date)
+        puts "Adding date parts for all works published since #{start_date}."
+        works = Work.where("published_on >= ?", start_date)
       else
-        articles = Article.all
+        works = Work.all
       end
 
-      articles.each do |article|
-        article.update_date_parts
-        article.save
+      works.each do |work|
+        work.update_date_parts
+        work.save
       end
-      puts "Date parts for #{articles.count} articles added"
+      puts "Date parts for #{works.count} works added"
     end
   end
 
-  namespace :alerts do
-    desc "Resolve all alerts with level INFO and WARN"
+  namespace :notifications do
+    desc "Resolve all notifications with level INFO and WARN"
     task :resolve => :environment do
-      Alert.unscoped {
-        before = Alert.count
-        Alert.where("level < 3").update_all(resolved: true)
-        after = Alert.count
-        puts "Deleted #{before - after} resolved alerts, #{after} unresolved alerts remaining"
-      }
+      Notification.unscoped do
+        before = Notification.count
+        Notification.where("level < 3").update_all(unresolved: false)
+        after = Notification.count
+        puts "Deleted #{before - after} resolved notifications, #{after} unresolved notifications remaining"
+      end
     end
 
-    desc "Delete all resolved alerts"
+    desc "Delete all resolved notifications"
     task :delete => :environment do
-      Alert.unscoped {
-        before = Alert.count
-        Alert.where(:unresolved => false).delete_all
-        after = Alert.count
-        puts "Deleted #{before - after} resolved alerts, #{after} unresolved alerts remaining"
-      }
+      Notification.unscoped do
+        before = Notification.count
+        Notification.where(:unresolved => false).delete_all
+        after = Notification.count
+        puts "Deleted #{before - after} resolved notifications, #{after} unresolved notifications remaining"
+      end
     end
   end
 
   namespace :api_requests do
 
-    desc "Delete API requests, keeping last 10,000 requests"
+    desc "Delete API requests, keeping last 100,000 requests"
     task :delete => :environment do
-      before = ApiRequest.count
-      request = ApiRequest.order("created_at DESC").offset(10000).first
-      unless request.nil?
-        ApiRequest.where("created_at <= ?", request.created_at).delete_all
+      request = ApiRequest.order("created_at DESC").offset(100000).first
+      if request.present?
+        count = ApiRequest.where("created_at <= ?", request.created_at).delete_all
+        puts "Deleted #{count} API requests"
+      else
+        puts "Deleted 0 API requests"
       end
-      after = ApiRequest.count
-      puts "Deleted #{before - after} API requests, #{after} API requests remaining"
     end
   end
 
@@ -224,106 +119,122 @@ namespace :db do
 
     desc "Delete all API responses older than 24 hours"
     task :delete => :environment do
-      before = ApiResponse.count
-      ApiResponse.where("created_at < ?", Time.zone.now - 1.day).delete_all
-      after = ApiResponse.count
-      puts "Deleted #{before - after} API responses, #{after} API responses remaining"
+      count = ApiResponse.where("created_at < ?", Time.zone.now - 1.day).delete_all
+      puts "Deleted #{count} API responses"
     end
   end
 
-  namespace :sources do
+  namespace :changes do
 
-    desc "Activate sources"
-    task :activate => :environment do |t, args|
+    desc "Delete all changes older than 24 hours"
+    task :delete => :environment do
+      count = Change.where("created_at < ?", Time.zone.now - 1.day).delete_all
+      puts "Deleted #{count} changes"
+    end
+  end
+
+  namespace :deposits do
+
+    desc "Delete all completed deposits older than 7 days"
+    task :delete => :environment do
+      count = Deposit.where("state = ?", 3).where("created_at < ?", Time.zone.now - 7.days).delete_all
+      puts "Deleted #{count} completed deposits"
+    end
+  end
+
+  namespace :agents do
+
+    desc "Activate agents"
+    task :activate => :environment do |_, args|
       if args.extras.empty?
-        sources = Source.inactive
+        agents = Agent.inactive
       else
-        sources = Source.inactive.where("name in (?)", args.extras)
+        agents = Agent.inactive.where("name in (?)", args.extras)
       end
 
-      if sources.empty?
-        puts "No inactive source found."
+      if agents.empty?
+        puts "No inactive agent found."
         exit
       end
 
-      sources.each do |source|
-        source.activate
-        if source.waiting?
-          puts "Source #{source.display_name} has been activated and is now waiting."
+      agents.each do |agent|
+        agent.activate
+        if agent.waiting?
+          puts "Agent #{agent.title} has been activated and is now waiting."
         else
-          puts "Source #{source.display_name} could not be activated."
+          puts "Agent #{agent.title} could not be activated."
         end
       end
     end
 
-    desc "Inactivate sources"
-    task :inactivate => :environment do |t, args|
+    desc "Inactivate agents"
+    task :inactivate => :environment do |_, args|
       if args.extras.empty?
-        sources = Source.active
+        agents = Agent.active
       else
-        sources = Source.active.where("name in (?)", args.extras)
+        agents = Agent.active.where("name in (?)", args.extras)
       end
 
-      if sources.empty?
-        puts "No active source found."
+      if agents.empty?
+        puts "No active agent found."
         exit
       end
 
-      sources.each do |source|
-        source.inactivate
-        if source.inactive?
-          puts "Source #{source.display_name} has been inactivated."
+      agents.each do |agent|
+        agent.inactivate
+        if agent.inactive?
+          puts "Agent #{agent.title} has been inactivated."
         else
-          puts "Source #{source.display_name} could not be inactivated."
+          puts "Agent #{agent.title} could not be inactivated."
         end
       end
     end
 
-    desc "Install sources"
-    task :install => :environment do |t, args|
+    desc "Install agents"
+    task :install => :environment do |_, args|
       if args.extras.empty?
-        sources = Source.available
+        agents = Agent.available
       else
-        sources = Source.available.where("name in (?)", args.extras)
+        agents = Agent.available.where("name in (?)", args.extras)
       end
 
-      if sources.empty?
-        puts "No available source found."
+      if agents.empty?
+        puts "No available agent found."
         exit
       end
 
-      sources.each do |source|
-        source.install
-        unless source.available?
-          puts "Source #{source.display_name} has been installed."
+      agents.each do |agent|
+        agent.install
+        unless agent.available?
+          puts "Agent #{agent.title} has been installed."
         else
-          puts "Source #{source.display_name} could not be installed."
+          puts "Agent #{agent.title} could not be installed."
         end
       end
     end
 
-    desc "Uninstall sources"
-    task :uninstall => :environment do |t, args|
+    desc "Uninstall agents"
+    task :uninstall => :environment do |_, args|
       if args.extras.empty?
-        puts "No source name provided."
+        puts "No agent name provided."
         exit
       else
-        sources = Source.installed.where("name in (?)", args.extras)
+        agents = Agent.installed.where("name in (?)", args.extras)
       end
 
-      if sources.empty?
-        puts "No installed source found."
+      if agents.empty?
+        puts "No installed agent found."
         exit
       end
 
-      sources.each do |source|
-        source.uninstall
-        if source.available?
-          puts "Source #{source.display_name} has been uninstalled."
-        elsif source.retired?
-          puts "Source #{source.display_name} has been retired."
+      agents.each do |agent|
+        agent.uninstall
+        if agent.available?
+          puts "Agent #{agent.title} has been uninstalled."
+        elsif agent.retired?
+          puts "Agent #{agent.title} has been retired."
         else
-          puts "Source #{source.display_name} could not be uninstalled."
+          puts "Agent #{agent.title} could not be uninstalled."
         end
       end
     end

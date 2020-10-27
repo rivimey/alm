@@ -26,7 +26,7 @@ Devise.setup do |config|
   # session. If you need permissions, you should implement that in a before filter.
   # You can also supply a hash where the value is a boolean determining whether
   # or not authentication should be aborted when the value is not present.
-  config.authentication_keys = [ :login ]
+  config.authentication_keys = [:uid]
 
   # Configure parameters from the request object used for authentication. Each entry
   # given should be a request method and it will automatically be passed to the
@@ -163,7 +163,7 @@ Devise.setup do |config|
   # ==> Configuration for :recoverable
   #
   # Defines which key will be used when recovering the password for an account
-  config.reset_password_keys = [ :login ]
+  config.reset_password_keys = [:email]
 
   # Time interval you can reset your password with a reset password key.
   # Don't put a too small interval or your users won't have the time to
@@ -182,7 +182,7 @@ Devise.setup do |config|
   # Defines name of the authentication token params key
   # config.token_authentication_key = :api_key
 
-  config.secret_key = CONFIG[:secret_token]
+  config.secret_key = ENV['SECRET_KEY_BASE']
 
   # ==> Scopes configuration
   # Turn scoped views on. Before rendering "sessions/new", it will first check for
@@ -213,12 +213,30 @@ Devise.setup do |config|
   # ==> OmniAuth
   # Add a new OmniAuth provider. Check the wiki for more information on setting
   # up on your models and hooks.
-  config.omniauth :persona
-  config.omniauth :cas, url: (CONFIG[:cas_url] ? CONFIG[:cas_url] : "http://example.org"),
-                        login_url: CONFIG[:cas_login_url],
-                        logout_url: CONFIG[:cas_logout_url],
-                        service_validate_url: CONFIG[:cas_service_validate_url],
-                        ssl: true
+  if ENV['CAS_URL']
+    config.omniauth :cas, url: ENV['CAS_URL'],
+                          login_url: "#{ENV['CAS_PREFIX']}/login",
+                          logout_url: "#{ENV['CAS_PREFIX']}/logout",
+                          service_validate_url: "#{ENV['CAS_PREFIX']}/serviceValidate",
+                          ssl: true,
+                          fetch_raw_info: lambda { |strategy, options, ticket, user_info|
+                            User.fetch_raw_info(user_info.fetch('user'))
+                          }
+  end
+
+  config.omniauth :github, ENV['GITHUB_CLIENT_ID'],
+                           ENV['GITHUB_CLIENT_SECRET'],
+                           scope: "user,repo" if ENV['GITHUB_CLIENT_ID']
+  config.omniauth :orcid, ENV['ORCID_CLIENT_ID'],
+                          ENV['ORCID_CLIENT_SECRET'] if ENV['ORCID_CLIENT_ID']
+  config.omniauth :jwt, ENV['JWT_SECRET_KEY'],
+                        auth_url: "#{ENV['JWT_HOST']}/services/#{ENV['JWT_NAME']}",
+                        uid_claim: 'uid',
+                        required_claims: ['uid', 'name'],
+                        info_map: { "name" => "name",
+                                    "api_key" => "authentication_token",
+                                    "role" => "role" }
+
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or
   # change the failure app, you can configure them inside the config.warden block.

@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: card
 title: "CiteULike"
 ---
 
@@ -8,18 +8,18 @@ title: "CiteULike"
 <table width=100% border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
-<td valign="top" width=30%><strong>ALM Name</strong></td>
+<td valign="top" width=30%><strong>Lagotto Name</strong></td>
 <td valign="top" width=70%>citeulike</td>
 </tr>
 <tr>
-<td valign="top" width=20%><strong>ALM Configuration</strong></td>
+<td valign="top" width=20%><strong>Lagotto Configuration</strong></td>
 <td valign="top" width=80%>default</td>
 </tr>
 <tr>
-<td valign="top" width=20%><strong>ALM Core Attributes</strong></td>
+<td valign="top" width=20%><strong>Lagotto Core Attributes</strong></td>
 <td valign="top" width=80%>url<br/>contributor (as username)<br/>date (as post_time)</td>
 </tr>
-<td valign="top" width=20%><strong>ALM Other Attributes</strong></td>
+<td valign="top" width=20%><strong>Lagotto Other Attributes</strong></td>
 <td valign="top" width=80%>tag</td>
 </tr>
 <tr>
@@ -76,4 +76,4 @@ title: "CiteULike"
 ```
 
 ## Source Code
-The source code is available [here](https://github.com/articlemetrics/alm/blob/master/app/models/sources/citeulike.rb).
+The source code is available [here](https://github.com/lagotto/lagotto/blob/master/app/models/sources/citeulike.rb).

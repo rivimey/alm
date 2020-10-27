@@ -1,105 +1,105 @@
-require 'spec_helper'
+require "rails_helper"
 
-describe Source do
+describe Agent do
 
-  subject { FactoryGirl.create(:source) }
+  subject { FactoryGirl.create(:agent) }
 
-  describe 'states' do
-    describe ':waiting' do
-      it 'should be an initial state' do
-        subject.should be_waiting
+  describe "states" do
+    describe ":waiting" do
+      it "should be an initial state" do
+        expect(subject).to be_waiting
       end
 
-      it 'should change to :working on :work' do
+      it "should change to :working on :work" do
         subject.work
-        subject.should be_working
+        expect(subject).to be_working
       end
 
-      it 'should change to :inactive on :inactivate' do
-        subject.should receive(:remove_queues)
+      it "should change to :inactive on :inactivate" do
+        expect(subject).to receive(:remove_queues)
         subject.inactivate
-        subject.should be_inactive
+        expect(subject).to be_inactive
       end
 
-      it 'should change to :disabled on :disable' do
+      it "should change to :disabled on :disable" do
         report = FactoryGirl.create(:fatal_error_report_with_admin_user)
 
         subject.disable
-        subject.should be_disabled
-        Alert.count.should == 1
-        alert = Alert.first
-        alert.class_name.should eq("TooManyErrorsBySourceError")
-        alert.message.should eq("#{subject.display_name} has exceeded maximum failed queries. Disabling the source.")
-        alert.source_id.should == subject.id
+        expect(subject).to be_disabled
+        expect(Notification.count).to eq(1)
+        notification = Notification.first
+        expect(notification.class_name).to eq("TooManyErrorsBySourceError")
+        expect(notification.message).to eq("#{subject.title} has exceeded maximum failed queries. Disabling the agent.")
+        expect(notification.source_id).to eq(subject.source_id)
       end
     end
 
-    describe ':working' do
+    describe ":working" do
       before(:each) { subject.work }
 
-      it 'should change to :inactive on :inactivate' do
-        subject.should receive(:remove_queues)
+      it "should change to :inactive on :inactivate" do
+        expect(subject).to receive(:remove_queues)
         subject.inactivate
-        subject.should be_inactive
+        expect(subject).to be_inactive
       end
 
-      it 'should change to :disabled on :disable' do
+      it "should change to :disabled on :disable" do
         report = FactoryGirl.create(:fatal_error_report_with_admin_user)
 
         subject.disable
-        subject.should be_disabled
-        Alert.count.should == 1
-        alert = Alert.first
-        alert.class_name.should eq("TooManyErrorsBySourceError")
-        alert.message.should eq("#{subject.display_name} has exceeded maximum failed queries. Disabling the source.")
-        alert.source_id.should == subject.id
+        expect(subject).to be_disabled
+        expect(Notification.count).to eq(1)
+        notification = Notification.first
+        expect(notification.class_name).to eq("TooManyErrorsBySourceError")
+        expect(notification.message).to eq("#{subject.title} has exceeded maximum failed queries. Disabling the agent.")
+        expect(notification.source_id).to eq(subject.source_id)
       end
 
-      it 'should change to :waiting on :wait' do
+      it "should change to :waiting on :wait" do
         subject.wait
-        subject.should be_waiting
+        expect(subject).to be_waiting
       end
     end
 
-    describe ':inactive' do
-      subject { FactoryGirl.create(:source, state_event: 'install') }
+    describe ":inactive" do
+      subject { FactoryGirl.create(:agent, state_event: "install") }
 
-      it 'should change to :waiting on :activate' do
-        subject.should be_inactive
+      it "should change to :waiting on :activate" do
+        expect(subject).to be_inactive
         subject.activate
-        subject.should be_waiting
+        expect(subject).to be_waiting
       end
 
-      describe 'invalid source' do
-        subject { FactoryGirl.create(:source, state_event: 'install', url: '') }
+      describe "invalid agent" do
+        subject { FactoryGirl.create(:counter, state_event: "install", url_private: "") }
 
-        it 'should not change to :waiting on :activate' do
+        it "should not change to :waiting on :activate" do
           subject.activate
-          subject.should be_inactive
-          subject.errors.full_messages.first.should eq("Url can't be blank")
+          expect(subject).to be_inactive
+          expect(subject.errors.full_messages.first).to eq("Url private can't be blank")
         end
       end
     end
 
-    describe ':available' do
+    describe ":available" do
       before(:each) { subject.uninstall }
 
-      it 'should change to :inactive on :install' do
+      it "should change to :inactive on :install" do
         subject.install
-        subject.should be_inactive
+        expect(subject).to be_inactive
       end
     end
 
-    describe ':retired' do
-      subject { FactoryGirl.create(:source, obsolete: true) }
+    describe ":retired" do
+      subject { FactoryGirl.create(:agent, obsolete: true) }
 
       before(:each) do
         subject.uninstall
       end
 
-      it 'should change to :retired on :install' do
+      it "should change to :retired on :install" do
         subject.install
-        subject.should be_retired
+        expect(subject).to be_retired
       end
     end
   end

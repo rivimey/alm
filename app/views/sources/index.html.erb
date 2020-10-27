@@ -1,67 +1,23 @@
-<%#
-  # $HeadURL$
-  # $Id$
-  #
-  # Copyright (c) 2009-2012 by Public Library of Science, a non-profit corporation
-  # http://www.plos.org/
-  #
-  # Licensed under the Apache License, Version 2.0 (the "License");
-  # you may not use this file except in compliance with the License.
-  # You may obtain a copy of the License at
-  #
-  #     http://www.apache.org/licenses/LICENSE-2.0
-  #
-  # Unless required by applicable law or agreed to in writing, software
-  # distributed under the License is distributed on an "AS IS" BASIS,
-  # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  # See the License for the specific language governing permissions and
-  # limitations under the License.
--%>
-
 <div class="content">
-  <div class="page-header" id="page-header">
-    <h1 id="api_key" data-api_key="<%= CONFIG[:api_key] %>">Sources</h1>
-  </div>
-
-  <ul class="nav nav-tabs" id="nav_index">
-    <li class="active"><a href="#summary" data-toggle="tab" title="Summary">Summary</a></li>
-    <% if can?(:read, Alert) %>
-      <li><a href="#jobs" data-toggle="tab" title="Jobs">Jobs</a></li>
-      <li><a href="#responses" data-toggle="tab" title="Responses">Responses</a></li>
+  <ul class="nav nav-pills" id="nav_index">
+    <li class="active"><a href="#summary" id="summary-pill" data-toggle="tab" title="Summary">Summary</a></li>
+    <li><a href="#results" id="results-pill" data-toggle="tab" title="Results">Results</a></li>
+    <% if can?(:read, Notification) %>
+      <li><a href="#installation" id="installation-pill"  data-toggle="tab" title="Installation">Installation</a></li>
     <% end %>
-    <li><a href="#articles" data-toggle="tab" title="Articles">Articles</a></li>
-    <li><a href="#events" data-toggle="tab" title="Events">Events</a></li>
-    <% if can?(:read, Alert) %>
-      <li><a href="#installation" data-toggle="tab" title="Installation">Installation</a></li>
-    <% end %>
-    <li><a href="#documentation" data-toggle="tab" title="documentation">Documentation</a></li>
   </ul>
 
   <div class="tab-content">
     <div class="tab-pane active" id="summary">
       <%= render :partial => 'summary' %>
     </div>
-    <% if can?(:read, Alert) %>
-      <div class="tab-pane" id="jobs">
-        <%= render :partial => 'jobs' %>
-      </div>
-      <div class="tab-pane" id="responses">
-        <%= render :partial => 'responses' %>
-      </div>
-    <% end %>
-    <div class="tab-pane" id="articles">
-      <%= render :partial => 'articles' %>
+    <div class="tab-pane" id="results">
+      <%= render :partial => 'results' %>
     </div>
-    <div class="tab-pane" id="events">
-      <%= render :partial => 'events' %>
-    </div>
-    <% if can?(:read, Alert) %>
+    <% if can?(:read, Notification) %>
       <div class="tab-pane" id="installation">
         <%= render :partial => 'installation' %>
       </div>
     <% end %>
-    <div class="tab-pane" id="documentation">
-      <%= render :partial => 'docs/show' %>
-    </div>
   </div>
 </div>

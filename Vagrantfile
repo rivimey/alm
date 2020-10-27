@@ -1,106 +1,111 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+def installed_plugins(required_plugins)
+  required_plugins.reduce([]) do |missing, plugin|
+    if Vagrant.has_plugin?(plugin)
+      missing
+    else
+      puts "#{plugin} plugin is missing. Installing..."
+      %x(set -x; vagrant plugin install #{plugin})
+      missing << plugin
+    end
+  end
+end
+
+def load_env
+  # requires dotenv plugin/gem
+  require "dotenv"
+  Dotenv.load! File.expand_path("../.env", __FILE__)
+rescue LoadError
+  $stderr.puts "Please install dotenv plugin with \"vagrant plugin install dotenv\""
+  exit
+rescue Errno::ENOENT
+  $stderr.puts "Please create .env file, e.g. from .env.example"
+  exit
+end
+
 Vagrant.configure("2") do |config|
-  # All Vagrant configuration is done here. The most common configuration
-  # options are documented and commented below. For a complete reference,
-  # please see the online documentation at vagrantup.com.
+  # All Vagrant configuration is done here.
+
+  # Check if required plugins are installed.
+  required_plugins = %w{ vagrant-omnibus dotenv }
+
+  unless installed_plugins(required_plugins).empty?
+    puts "Plugins need to be installed, please install them and rerun vagrant."
+    exit
+  end
+
+  # load ENV variables
+  load_env
 
   # Install latest version of Chef
   config.omnibus.chef_version = :latest
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "opscode-ubuntu-12.04"
+  config.vm.box = "phusion/ubuntu-14.04-amd64"
 
-  # The url from where the 'config.vm.box' box will be fetched if it
-  # doesn't already exist on the user's system.
-  config.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-12.04_chef-provisionerless.box"
-
-  # Override settings for specific providers
-  config.vm.provider :virtualbox do |vb, override|
-    vb.name = "alm"
-
-    # Boot with a GUI so you can see the screen. (Default is headless)
-    # vb.gui = true
-
-    vb.customize ["modifyvm", :id, "--memory", "1024"]
-  end
-
-  config.vm.provider :vmware_fusion do |fusion, override|
-    fusion.vmx["memsize"] = "1024"
-
-    override.vm.box_url = "http://files.vagrantup.com/precise64_vmware.box"
-  end
-
-  config.vm.provider :aws do |aws, override|
-    aws.access_key_id = ENV['AWS_KEY_ID']
-    aws.secret_access_key = ENV['AWS_SECRET_KEY']
-    aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
-    aws.security_groups = ENV['AWS_SECURITY_GROUP']
-    aws.instance_type = "m1.small"
-    aws.ami = "ami-e7582d8e"
-    aws.tags = { Name: 'Vagrant alm' }
-
-    override.ssh.username = "ubuntu"
-    override.ssh.private_key_path = ENV['AWS_KEY_PATH']
-    override.vm.box_url = "https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box"
-  end
-
-  config.vm.provider :digital_ocean do |provider, override|
-    override.ssh.private_key_path = '~/.ssh/id_rsa'
-    override.vm.box = 'digital_ocean'
-    override.vm.box_url = "https://github.com/smdahlen/vagrant-digitalocean/raw/master/box/digital_ocean.box"
-    override.ssh.username = "ubuntu"
-
-    provider.region = 'nyc2'
-    provider.image = 'Ubuntu 12.04.4 x64'
-    provider.size = '1GB'
-
-    # please configure
-    override.vm.hostname = "ALM.EXAMPLE.ORG"
-    provider.token = 'EXAMPLE'
-  end
-
-  config.vm.hostname = "alm.local"
-
-  # Assign this VM to a host-only network IP, allowing you to access it
-  # via the IP. Host-only networks can talk to the host machine as well as
-  # any other machines on the same network, but cannot be accessed (through this
-  # network interface) by any external networks.
-  config.vm.network :private_network, ip: "33.33.33.44"
-
-  # Assign this VM to a bridged network, allowing you to connect directly to a
-  # network using the host's network device. This makes the VM appear as another
-  # physical device on your network.
-  # config.vm.network :bridged
-
-  # Forward a port from the guest to the host, which allows for outside
-  # computers to access the VM, whereas host only networking does not.
-  config.vm.network :forwarded_port, guest: 80, host: 8080 # Apache2
-  config.vm.network :forwarded_port, guest: 5984, host: 9000 # CouchDB
-
-  # Share an additional folder to the guest VM. The first argument is
-  # an identifier, the second is the path on the guest to mount the
-  # folder, and the third is the path on the host to the actual folder.
-  config.vm.synced_folder ".", "/vagrant", :disabled => true
-  config.vm.synced_folder ".", "/var/www/alm/shared"
-
-  # Enable provisioning with chef solo, specifying a cookbooks path, roles
-  # path, and data_bags path (all relative to this Vagrantfile), and adding
-  # some recipes and/or roles.
-  #
+  # Enable provisioning with chef solo
   config.vm.provision :chef_solo do |chef|
+    chef.json = { "application" => ENV["APPLICATION"] }
+    chef.custom_config_path = "Vagrantfile.chef"
     chef.cookbooks_path = "vendor/cookbooks"
-    dna = JSON.parse(File.read("node.json"))
+    dna = JSON.parse(File.read(File.expand_path("../node.json", __FILE__)))
     dna.delete("run_list").each do |recipe|
       chef.add_recipe(recipe)
     end
     chef.json.merge!(dna)
+    chef.log_level = ENV["LOG_LEVEL"].to_sym
+  end
 
-    # Read in user-specific configuration settings, not under version control
-    if File.file?("config.json")
-      config = JSON.parse(File.read("config.json"))
-      chef.json.merge!(config)
+  # allow multiple machines
+  config.vm.define ENV["APPLICATION"] do |machine|
+    # Override settings for specific providers
+    machine.vm.provider :virtualbox do |vb, override|
+      override.vm.box = "bento/ubuntu-14.04"
+
+      vb.name = ENV["APPLICATION"]
+      vb.customize ["modifyvm", :id, "--memory", "2048"]
     end
+
+    machine.vm.provider :vmware_fusion do |fusion|
+      fusion.vmx["memsize"] = "2048"
+      fusion.vmx["numvcpus"] = "2"
+    end
+
+    machine.vm.provider :aws do |aws, override|
+      # please configure in .env
+      aws.access_key_id = ENV.fetch('AWS_KEY', nil)
+      aws.secret_access_key = ENV.fetch('AWS_SECRET', nil)
+      aws.keypair_name = ENV.fetch('AWS_KEYNAME', nil)
+      override.ssh.private_key_path = ENV.fetch('AWS_KEYPATH', nil)
+
+      aws.security_groups = "default"
+      aws.instance_type = "m3.medium"
+      aws.ami = "ami-9aaa1cf2"
+      aws.region = "us-east-1"
+      aws.tags = { Name: ENV["APPLICATION"] }
+
+      override.ssh.username = "ubuntu"
+      override.vm.box_url = "https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box"
+    end
+
+    machine.vm.provider :digital_ocean do |digital_ocean, override|
+      # please configure in .env
+      override.ssh.private_key_path = ENV.fetch('SSH_PRIVATE_KEY', nil)
+      digital_ocean.token = ENV.fetch('DO_PROVIDER_TOKEN', nil)
+      digital_ocean.size = ENV.fetch('DO_SIZE', nil)
+
+      override.vm.box = 'digital_ocean'
+      override.vm.box_url = "https://github.com/smdahlen/vagrant-digitalocean/raw/master/box/digital_ocean.box"
+      override.ssh.username = "ubuntu"
+      digital_ocean.region = 'nyc2'
+      digital_ocean.image = 'ubuntu-14-04-x64'
+    end
+
+    machine.vm.hostname = ENV.fetch('HOSTNAME')
+    machine.vm.network :private_network, ip: ENV.fetch('PRIVATE_IP', nil)
+    machine.vm.network :public_network
+    machine.vm.synced_folder ".", "/var/www/#{ENV['APPLICATION']}", id: "vagrant-root"
   end
 end

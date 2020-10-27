@@ -1,117 +1,97 @@
-# encoding: UTF-8
-
-# $HeadURL$
-# $Id$
-#
-# Copyright (c) 2009-2012 by Public Library of Science, a non-profit corporation
-# http://www.plos.org/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 namespace :queue do
-
-  desc "Queue stale articles"
-  task :stale => :environment do |t, args|
+  # observe next update derived from cron_line. Otherwise the same as queue:all
+  desc "Queue stale works"
+  task :stale => :environment do |_, args|
     if args.extras.empty?
-      sources = Source.active
+      agents = Agent.active
     else
-      sources = Source.active.where("name in (?)", args.extras)
+      agents = Agent.active.where("name in (?)", args.extras)
     end
 
-    if sources.empty?
-      puts "No active source found."
+    if agents.empty?
+      puts "No active agent found."
       exit
     end
 
     begin
-      start_date = Date.parse(ENV['START_DATE']) if ENV['START_DATE']
-      end_date = Date.parse(ENV['END_DATE']) if ENV['END_DATE']
+      from_date = ENV['FROM_DATE'] ? Date.parse(ENV['FROM_DATE']).iso8601 : (Time.zone.now.to_date - 1.day).iso8601
+      until_date = ENV['UNTIL_DATE'] ? Date.parse(ENV['UNTIL_DATE']).iso8601 : Time.zone.now.to_date.iso8601
     rescue => e
       # raises error if invalid date supplied
       puts "Error: #{e.message}"
       exit
     end
-    puts "Queueing stale articles published from #{start_date} to #{end_date}." if start_date && end_date
+    puts "Queueing all works published from #{from_date} to #{until_date}."
 
-    sources.each do |source|
-      count = source.queue_all_articles(start_date: start_date, end_date: end_date)
-      puts "#{count} stale articles for source #{source.display_name} have been queued."
+    agents.each do |agent|
+      count = agent.queue_jobs(from_date: from_date, until_date: until_date)
+      puts "#{count} works for agent #{agent.title} have been queued."
     end
   end
 
-  desc "Queue all articles"
-  task :all => :environment do |t, args|
+  desc "Queue all works"
+  task :all => :environment do |_, args|
     if args.extras.empty?
-      sources = Source.active
+      agents = Agent.active
     else
-      sources = Source.active.where("name in (?)", args.extras)
+      agents = Agent.active.where("name in (?)", args.extras)
     end
 
-    if sources.empty?
-      puts "No active source found."
+    if agents.empty?
+      puts "No active agent found."
       exit
     end
 
     begin
-      start_date = Date.parse(ENV['START_DATE']) if ENV['START_DATE']
-      end_date = Date.parse(ENV['END_DATE']) if ENV['END_DATE']
+      from_date = ENV['FROM_DATE'] ? Date.parse(ENV['FROM_DATE']).iso8601 : (Time.zone.now.to_date - 1.day).iso8601
+      until_date = ENV['UNTIL_DATE'] ? Date.parse(ENV['UNTIL_DATE']).iso8601 : Time.zone.now.to_date.iso8601
     rescue => e
       # raises error if invalid date supplied
       puts "Error: #{e.message}"
       exit
     end
-    puts "Queueing all articles published from #{start_date} to #{end_date}." if start_date && end_date
+    puts "Queueing all works published from #{from_date} to #{until_date}."
 
-    sources.each do |source|
-      count = source.queue_all_articles(all: true, start_date: start_date, end_date: end_date)
-      puts "#{count} articles for source #{source.display_name} have been queued."
+    agents.each do |agent|
+      count = agent.queue_jobs(all: true, from_date: from_date, until_date: until_date)
+      puts "#{count} works for agent #{agent.title} have been queued."
     end
   end
 
-  desc "Queue article with given uid"
-  task :one, [:uid] => :environment do |t, args|
-    if args.uid.nil?
-      puts "#{CONFIG[:uid]} is required"
+  desc "Queue work with given pid"
+  task :one, [:pid] => :environment do |_, args|
+    if args.pid.nil?
+      puts "pid is required"
       exit
     end
 
-    article = Article.where(CONFIG[:uid].to_sym => args.uid).first
-    if article.nil?
-      puts "Article with #{CONFIG[:uid]} #{args.uid} does not exist"
+    work = Work.where(pid: args.pid).first
+    if work.nil?
+      puts "Work with pid #{args.pid} does not exist"
       exit
     end
 
     if args.extras.empty?
-      sources = Source.active
+      agents = Agent.active
     else
-      sources = Source.active.where("name in (?)", args.extras)
+      agents = Agent.active.where("name in (?)", args.extras)
     end
 
-    if sources.empty?
-      puts "No active source found."
+    if agents.empty?
+      puts "No active agent found."
       exit
     end
 
-    sources.each do |source|
-      rs = RetrievalStatus.find_by_article_id_and_source_id(article.id, source.id)
+    agents.each do |agent|
+      task = Task.where(work_id: work.id, agent_id: agent.id).first
 
-      if rs.nil?
-        puts "Retrieval Status for article with #{CONFIG[:uid]} #{args.uid} and source with name #{args.source} does not exist"
+      if task.nil?
+        puts "Task for work with pid #{args.pid} and agent with name #{args.agent} does not exist"
         exit
       end
 
-      source.queue_article_jobs([rs.id], { priority: 2 })
-      puts "Job for #{CONFIG[:uid]} #{article.uid} and source #{source.display_name} has been queued."
+      agent.queue_jobs([task.id], queue: "high")
+      puts "Job for pid #{work.pid} and agent #{agent.title} has been queued."
     end
   end
 

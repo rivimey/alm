@@ -1,94 +1,46 @@
-require 'spec_helper'
+require 'rails_helper'
 
-describe "db:articles:seed" do
-  include_context "rake"
-
-  let(:output) { "Seeded 35 articles\n" }
-
-  its(:prerequisites) { should include("environment") }
-
-  it "should run the rake task" do
-    capture_stdout { subject.invoke }.should eq(output)
-  end
-end
-
-describe "db:articles:import" do
-  include_context "rake"
-
-  let(:output) { "Started import of 993 articles in the background...\n" }
-
-  its(:prerequisites) { should include("environment") }
-
-  it "should run the rake task" do
-    import = Import.new
-    stub_request(:get, import.query_url(offset = 0, rows = 0)).to_return(:body => File.read(fixture_path + 'import_no_rows_single.json'))
-    stub_request(:get, import.query_url).to_return(:body => File.read(fixture_path + 'import.json'))
-    stub_request(:get, "http://#{CONFIG[:public_server]}/api/v5/status?api_key=#{CONFIG[:api_key]}")
-    capture_stdout { subject.invoke }.should eq(output)
-  end
-
-  it "should run the rake task for a sample" do
-    ENV['SAMPLE'] = "50"
-    output = "Started import of 50 articles in the background...\n"
-    import = Import.new(sample: 50)
-    stub_request(:get, import.query_url).to_return(:body => File.read(fixture_path + 'import.json'))
-    stub_request(:get, "http://#{CONFIG[:public_server]}/api/v5/status?api_key=#{CONFIG[:api_key]}")
-    capture_stdout { subject.invoke }.should eq(output)
-  end
-end
-
-describe "db:articles:load" do
-  include_context "rake"
-
-  # we are not providing a file to import
-  let(:output) { "No articles to import.\n" }
-
-  its(:prerequisites) { should include("environment") }
-
-  it "should run the rake task" do
-    capture_stdout { subject.invoke }.should eq(output)
-  end
-end
-
-describe "db:articles:delete_all" do
+describe "db:works:delete" do
   include_context "rake"
 
   before do
-    FactoryGirl.create_list(:article, 5)
+    FactoryGirl.create_list(:work, 5)
   end
 
-  let(:output) { "Deleted 5 articles, 0 articles remaining\n" }
+  let(:output) { "Started deleting all works in the background...\n" }
 
   it "should run" do
-    capture_stdout { subject.invoke }.should eq(output)
+    ENV['MEMBER'] = "all"
+    expect(capture_stdout { subject.invoke }).to eq(output)
+    ENV['MEMBER'] = nil
   end
 end
 
-describe "db:articles:sanitize_title" do
+describe "db:works:sanitize_title" do
   include_context "rake"
 
   before do
-    FactoryGirl.create_list(:article, 5)
+    FactoryGirl.create_list(:work, 5)
   end
 
-  let(:output) { "5 article titles sanitized\n" }
+  let(:output) { "5 work titles sanitized\n" }
 
   it "should run" do
-    capture_stdout { subject.invoke }.should eq(output)
+    expect(capture_stdout { subject.invoke }).to eq(output)
   end
 end
 
-describe "db:alerts:delete" do
+describe "db:notifications:delete" do
   include_context "rake"
 
   before do
-    FactoryGirl.create_list(:alert, 5, :unresolved => false)
+    FactoryGirl.create_list(:notification, 5, :unresolved => false)
   end
 
-  let(:output) { "Deleted 5 resolved alerts, 0 unresolved alerts remaining\n" }
+  let(:output) { "Deleted 5 resolved notifications, 0 unresolved notifications remaining\n" }
 
   it "should run" do
-    capture_stdout { subject.invoke }.should eq(output)
+    expect(capture_stdout { subject.invoke }).to eq(output)
   end
 end
 
@@ -99,10 +51,10 @@ describe "db:api_requests:delete" do
     FactoryGirl.create_list(:api_request, 5)
   end
 
-  let(:output) { "Deleted 0 API requests, 5 API requests remaining\n" }
+  let(:output) { "Deleted 0 API requests\n" }
 
   it "should run" do
-    capture_stdout { subject.invoke }.should eq(output)
+    expect(capture_stdout { subject.invoke }).to eq(output)
   end
 end
 
@@ -110,69 +62,69 @@ describe "db:api_responses:delete" do
   include_context "rake"
 
   before do
-    FactoryGirl.create_list(:api_response, 5, unresolved: false, created_at: Time.zone.now - 2.days)
+    FactoryGirl.create_list(:api_response, 5, created_at: Time.zone.now - 2.days)
   end
 
-  let(:output) { "Deleted 5 API responses, 0 API responses remaining\n" }
+  let(:output) { "Deleted 5 API responses\n" }
 
   it "should run" do
-    capture_stdout { subject.invoke }.should eq(output)
+    expect(capture_stdout { subject.invoke }).to eq(output)
   end
 end
 
-describe "db:sources:activate" do
+describe "db:agents:activate" do
   include_context "rake"
 
   before do
-    FactoryGirl.create(:source, state_event: 'install')
+    FactoryGirl.create(:agent, state_event: 'install')
   end
 
-  let(:output) { "Source CiteULike has been activated and is now waiting.\n" }
+  let(:output) { "Agent CiteULike has been activated and is now waiting.\n" }
 
   it "should run" do
-    capture_stdout { subject.invoke }.should eq(output)
+    expect(capture_stdout { subject.invoke }).to eq(output)
   end
 end
 
-describe "db:sources:inactivate" do
+describe "db:agents:inactivate" do
   include_context "rake"
 
   before do
-    FactoryGirl.create(:source)
+    FactoryGirl.create(:agent)
   end
 
-  let(:output) { "Source CiteULike has been inactivated.\n" }
+  let(:output) { "Agent CiteULike has been inactivated.\n" }
 
   it "should run" do
-    capture_stdout { subject.invoke }.should eq(output)
+    expect(capture_stdout { subject.invoke }).to eq(output)
   end
 end
 
-describe "db:sources:install" do
+describe "db:agents:install" do
   include_context "rake"
 
   before do
-    FactoryGirl.create(:source, state_event: nil)
+    FactoryGirl.create(:agent, state_event: nil)
   end
 
-  let(:output) { "Source CiteULike has been installed.\n" }
+  let(:output) { "Agent CiteULike has been installed.\n" }
 
   it "should run" do
-    capture_stdout { subject.invoke }.should eq(output)
+    expect(capture_stdout { subject.invoke }).to eq(output)
   end
 end
 
-describe "db:sources:uninstall[citeulike,pmc]" do
+describe "db:agents:uninstall[citeulike,pmc]" do
   include_context "rake"
 
   before do
-    FactoryGirl.create(:source)
+    FactoryGirl.create(:agent)
     FactoryGirl.create(:pmc)
   end
 
-  let(:output) { "Source CiteULike has been uninstalled.\nSource PubMed Central Usage Stats has been uninstalled.\n" }
+  let(:output) { "Agent CiteULike has been uninstalled.\nAgent PubMed Central Usage Stats has been uninstalled.\n" }
 
   it "should run" do
-    capture_stdout { subject.invoke(*task_args) }.should eq(output)
+    expect(capture_stdout { subject.invoke(*task_args) }).to eq(output)
   end
 end

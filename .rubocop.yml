@@ -1,3 +1,29 @@
+# Common configuration.
+AllCops:
+  # Include gemspec and Rakefile
+  Include:
+    - '**/*.gemspec'
+    - '**/*.podspec'
+    - '**/*.jbuilder'
+    - '**/*.rake'
+    - '**/*.opal'
+    - '**/Gemfile'
+    - '**/Rakefile'
+    - '**/Capfile'
+    - '**/Guardfile'
+    - '**/Podfile'
+    - '**/Thorfile'
+    - '**/Vagrantfile'
+    - '**/Berksfile'
+    - '**/Cheffile'
+    - '**/Vagabondfile'
+  Exclude:
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+  # By default, the rails cops are not run. Override in project or home
+  # directory .rubocop.yml files, or by giving the -R/--rails option.
+  RunRailsCops: false
+
 AccessModifierIndentation:
   Description: Check indentation of private/protected visibility modifiers.
   Enabled: true
@@ -58,7 +84,7 @@ BlockComments:
 
 BlockNesting:
   Description: 'Avoid excessive block nesting'
-  Enabled: false
+  Enabled: true
 
 Blocks:
   Description: >-
@@ -157,10 +183,6 @@ EmptyLinesAroundAccessModifier:
   Description: "Keep blank lines around access modifiers."
   Enabled: true
 
-EmptyLinesAroundBody:
-  Description: "Keeps track of empty lines around expression bodies."
-  Enabled: true
-
 EmptyLiteral:
   Description: 'Prefer literals to Array.new/Hash.new/String.new.'
   Enabled: true
@@ -195,7 +217,7 @@ For:
 
 FormatString:
   Description: 'Enforce the use of Kernel#sprintf, Kernel#format or String#%.'
-  Enabled: false
+  Enabled: true
 
 GlobalVars:
   Description: 'Do not introduce global variables.'
@@ -281,7 +303,7 @@ ModuleFunction:
 
 MultilineBlockChain:
   Description: 'Avoid multi-line chains of blocks.'
-  Enabled: false
+  Enabled: true
 
 MultilineIfThen:
   Description: 'Never use then for multi-line if/unless.'
@@ -313,7 +335,7 @@ NilComparison:
 
 NonNilCheck:
   Description: 'Checks for redundant nil checks.'
-  Enabled: false
+  Enabled: true
 
 Not:
   Description: 'Use ! instead of not.'
@@ -337,7 +359,7 @@ OpMethod:
 
 ParameterLists:
   Description: 'Avoid parameter lists longer than three or four parameters.'
-  Enabled: false
+  Enabled: true
 
 ParenthesesAroundCondition:
   Description: >-
@@ -411,7 +433,7 @@ SingleLineBlockParams:
 
 SingleLineMethods:
   Description: 'Avoid single-line methods.'
-  Enabled: false
+  Enabled: true
 
 SingleSpaceBeforeFirstArg:
   Description: >-
@@ -439,7 +461,7 @@ SpaceAfterMethodName:
 
 SpaceAfterNot:
   Description: Tracks redundant space after the ! operator.
-  Enabled: false
+  Enabled: true
 
 SpaceAfterSemicolon:
   Description: 'Use spaces after semicolons.'
@@ -449,7 +471,7 @@ SpaceBeforeBlockBraces:
   Description: >-
                  Checks that the left block brace has or doesn't have space
                  before it.
-  Enabled: false
+  Enabled: true
 
 SpaceInsideBlockBraces:
   Description: >-
@@ -475,7 +497,7 @@ SpaceBeforeModifierKeyword:
 
 SpaceInsideBrackets:
   Description: 'No spaces after [ or before ].'
-  Enabled: false
+  Enabled: true
 
 SpaceInsideHashLiteralBraces:
   Description: "Use spaces inside hash literal braces - or don't."
@@ -702,7 +724,7 @@ ActionFilter:
 
 DefaultScope:
   Description: 'Checks if the argument passed to default_scope is a block.'
-  Enabled: false
+  Enabled: true
 
 HasAndBelongsToMany:
   Description: 'Prefer has_many :through to has_and_belongs_to_many.'

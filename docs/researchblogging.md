@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: card
 title: "Research Blogging"
 ---
 
@@ -12,18 +12,18 @@ Research Blogging is a science blog aggregator.
 <table width=100% border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
-<td valign="top" width=30%><strong>ALM Name</strong></td>
+<td valign="top" width=30%><strong>Lagotto Name</strong></td>
 <td valign="top" width=70%>researchblogging</td>
 </tr>
 <tr>
-<td valign="top" width=20%><strong>ALM Configuration</strong></td>
-<td valign="top" width=80%>staleness: [ 1.day, 1.day, 1.month, 1.month]</td>
+<td valign="top" width=20%><strong>Lagotto Configuration</strong></td>
+<td valign="top" width=80%>default</td>
 </tr>
 <tr>
-<td valign="top" width=20%><strong>ALM Core Attributes</strong></td>
+<td valign="top" width=20%><strong>Lagotto Core Attributes</strong></td>
 <td valign="top" width=80%>url (as post_URL)<br/>contributor (as blogger_name)<br/>date (as published_date)</td>
 </tr>
-<td valign="top" width=20%><strong>ALM Other Attributes</strong></td>
+<td valign="top" width=20%><strong>Lagotto Other Attributes</strong></td>
 <td valign="top" width=80%>post_title<br/>blog_name<br/>received_date</td>
 </tr>
 <tr>
@@ -124,7 +124,7 @@ Research Blogging is a science blog aggregator.
 ```
 
 ## Source Code
-The source code is available [here](https://github.com/articlemetrics/alm/blob/master/app/models/sources/researchblogging.rb).
+The source code is available [here](https://github.com/lagotto/lagotto/blob/master/app/models/sources/researchblogging.rb).
 
 ## Further Documentation
 * [Research Blogging website](http://researchblogging.org)

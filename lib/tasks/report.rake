@@ -1,238 +1,60 @@
-#
-# Copyright (c) 2009-2012 by Public Library of Science, a non-profit corporation
-# http://www.plos.org/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 require 'csv'
 require 'date'
 
 namespace :report do
 
   desc 'Generate CSV file with ALM stats for public sources'
-  task :alm_stats => :environment do |t, args|
-    filename = "alm_stats.csv"
-
-    csv = Report.to_csv
-
-    if csv.nil?
-      puts "No data for report \"#{filename}\"."
-    elsif Report.write(filename, csv)
-      puts "Report \"#{filename}\" has been written."
-    else
-      puts "Report \"#{filename}\" could not be written."
-    end
+  task :alm_stats => :environment do
+    report = AlmStatsReport.new(Source.active.public_sources)
+    ReportWriter.write report, contents: report.to_csv, filename: ReportWriter::ALM_STATS_CSV_FILENAME
   end
 
   desc 'Generate CSV file with ALM stats for private and public sources'
-  task :alm_private_stats => :environment do |t, args|
-    filename = "alm_private_stats.csv"
-
-    csv = Report.to_csv(include_private_sources: true)
-
-    if csv.nil?
-      puts "No data for report \"#{filename}\"."
-    elsif Report.write(filename, csv)
-      puts "Report \"#{filename}\" has been written."
-    else
-      puts "Report \"#{filename}\" could not be written."
-    end
-  end
-
-  desc 'Generate CSV file with Mendeley stats'
-  task :mendeley_stats => :environment do |t, args|
-    filename = "mendeley_stats.csv"
-    source = Source.find_by_name("mendeley")
-    csv = source.to_csv
-
-    if csv.nil?
-      puts "No data for report \"#{filename}\"."
-    elsif Report.write(filename, csv)
-      puts "Report \"#{filename}\" has been written."
-    else
-      puts "Report \"#{filename}\" could not be written."
-    end
-  end
-
-  desc 'Generate CSV file with PMC usage stats'
-  task :pmc => :environment do |t, args|
-    if ENV['FORMAT']
-      filename = "pmc_#{ENV['FORMAT']}.csv"
-    else
-      filename = "pmc_stats.csv"
-    end
-
-    source = Source.find_by_name("pmc")
-    csv = source.to_csv(format: ENV['FORMAT'], month: ENV['MONTH'], year: ENV['YEAR'])
-
-    if csv.nil?
-      puts "No data for report \"#{filename}\"."
-    elsif Report.write(filename, csv)
-      puts "Report \"#{filename}\" has been written."
-    else
-      puts "Report \"#{filename}\" could not be written."
-    end
-  end
-
-  desc 'Generate CSV file with PMC HTML usage stats over time'
-  task :pmc_html_stats => :environment do |t, args|
-    date = 1.year.ago.to_date
-    ENV['FORMAT'] = "html"
-    ENV['MONTH'] = date.month.to_s
-    ENV['YEAR'] = date.year.to_s
-    Rake::Task["report:pmc"].invoke
-    Rake::Task["report:pmc"].reenable
-  end
-
-  desc 'Generate CSV file with PMC PDF usage stats over time'
-  task :pmc_pdf_stats => :environment do |t, args|
-    date = 1.year.ago.to_date
-    ENV['FORMAT'] = "pdf"
-    ENV['MONTH'] = date.month.to_s
-    ENV['YEAR'] = date.year.to_s
-    Rake::Task["report:pmc"].invoke
-    Rake::Task["report:pmc"].reenable
-  end
-
-  desc 'Generate CSV file with PMC combined usage stats over time'
-  task :pmc_combined_stats => :environment do |t, args|
-    date = 1.year.ago.to_date
-    ENV['FORMAT'] = "combined"
-    ENV['MONTH'] = date.month.to_s
-    ENV['YEAR'] = date.year.to_s
-    Rake::Task["report:pmc"].invoke
-    Rake::Task["report:pmc"].reenable
-  end
-
-  desc 'Generate CSV file with PMC cumulative usage stats'
-  task :pmc_stats => :environment do |t, args|
-    ENV['FORMAT'] = nil
-    ENV['MONTH'] = nil
-    ENV['YEAR'] = nil
-    Rake::Task["report:pmc"].invoke
-    Rake::Task["report:pmc"].reenable
-  end
-
-  desc 'Generate CSV file with Counter usage stats'
-  task :counter => :environment do |t, args|
-    if ENV['FORMAT']
-      filename = "counter_#{ENV['FORMAT']}.csv"
-    else
-      filename = "counter_stats.csv"
-    end
-
-    source = Source.find_by_name("counter")
-    csv = source.to_csv(format: ENV['FORMAT'], month: ENV['MONTH'], year: ENV['YEAR'])
-
-    if csv.nil?
-      puts "No data for report \"#{filename}\"."
-    elsif Report.write(filename, csv)
-      puts "Report \"#{filename}\" has been written."
-    else
-      puts "Report \"#{filename}\" could not be written."
-    end
-  end
-
-  desc 'Generate CSV file with Counter HTML usage stats over time'
-  task :counter_html_stats => :environment do |t, args|
-    date = 1.year.ago.to_date
-    ENV['FORMAT'] = "html"
-    ENV['MONTH'] = date.month.to_s
-    ENV['YEAR'] = date.year.to_s
-    Rake::Task["report:counter"].invoke
-    Rake::Task["report:counter"].reenable
-  end
-
-  desc 'Generate CSV file with Counter PDF usage stats over time'
-  task :counter_pdf_stats => :environment do |t, args|
-    date = 1.year.ago.to_date
-    ENV['FORMAT'] = "pdf"
-    ENV['MONTH'] = date.month.to_s
-    ENV['YEAR'] = date.year.to_s
-    Rake::Task["report:counter"].invoke
-    Rake::Task["report:counter"].reenable
-  end
-
-  desc 'Generate CSV file with Counter XML usage stats over time'
-  task :counter_xml_stats => :environment do |t, args|
-    date = 1.year.ago.to_date
-    ENV['FORMAT'] = "xml"
-    ENV['MONTH'] = date.month.to_s
-    ENV['YEAR'] = date.year.to_s
-    Rake::Task["report:counter"].invoke
-    Rake::Task["report:counter"].reenable
-  end
-
-  desc 'Generate CSV file with Counter combined usage stats over time'
-  task :counter_combined_stats => :environment do |t, args|
-    date = 1.year.ago.to_date
-    ENV['FORMAT'] = "combined"
-    ENV['MONTH'] = date.month.to_s
-    ENV['YEAR'] = date.year.to_s
-    Rake::Task["report:counter"].invoke
-    Rake::Task["report:counter"].reenable
-  end
-
-  desc 'Generate CSV file with cumulative Counter usage stats'
-  task :counter_stats => :environment do |t, args|
-    ENV['FORMAT'] = nil
-    ENV['MONTH'] = nil
-    ENV['YEAR'] = nil
-    Rake::Task["report:counter"].invoke
-    Rake::Task["report:counter"].reenable
-  end
-
-  desc 'Generate CSV file with combined ALM stats'
-  task :combined_stats => :environment do |t, args|
-    filename = "alm_report.csv"
-
-    csv = Report.merge_stats(date: ENV['DATE'])
-    if csv.nil?
-      puts "No data for report \"#{filename}\"."
-    elsif Report.write(filename, csv)
-      puts "Report \"#{filename}\" has been written."
-    else
-      puts "Report \"#{filename}\" could not be written."
-    end
-  end
-
-  desc 'Generate CSV file with combined ALM private and public stats'
-  task :combined_private_stats => :environment do |t, args|
-    filename = "alm_private_report.csv"
-
-    csv = Report.merge_stats(include_private_sources: true, date: ENV['DATE'])
-    if csv.nil?
-      puts "No data for report \"#{filename}\"."
-    elsif Report.write(filename, csv)
-      puts "Report \"#{filename}\" has been written."
-    else
-      puts "Report \"#{filename}\" could not be written."
-    end
+  task :alm_private_stats => :environment do
+    report = AlmStatsReport.new(Source.active)
+    ReportWriter.write report, contents: report.to_csv, filename: ReportWriter::ALM_STATS_PRIVATE_CSV_FILENAME
   end
 
   desc 'Zip reports'
-  task :zip => :environment do |t, args|
+  task :zip => :environment do
+    LagottoZipUtility.zip_alm_combined_stats!
+    LagottoZipUtility.zip_administrative_reports!
+    puts "Reports have been compressed!"
+  end
 
-    folderpath = "#{Rails.root}/data/report_#{Date.today.iso8601}"
-    if not Dir.exist? folderpath
-      puts "No reports to compress."
-    elsif Report.zip_file && Report.zip_folder
-       puts "Reports have been compressed."
-    else
-      puts "Reports could not be compressed."
+  desc 'Export ALM stats report to Zenodo'
+  task :export_to_zenodo => [:environment, 'zenodo:requirements_check'] do
+    alm_combined_stats_zip_record = FileWriteLog.most_recent_with_name(LagottoZipUtility.alm_stats_zip_filename)
+
+    unless alm_stats_zip_record
+      puts  "No zip file (#{File.basename LagottoZipUtility.alm_stats_zip_filename}) found that needs to be exported!"
+      next
     end
+
+    publication_date = alm_stats_zip_record.created_at.to_date
+    sitenamelong = ENV['SITENAMELONG']
+    title = "Cumulative #{sitenamelong} Report - #{publication_date.to_s(:month_and_year)}"
+    description = <<-EOS.gsub(/^\s*/, '').gsub(/\s*\n\s*/, " ")
+      Article-Level Metrics (ALM) measure the reach and online engagement of scholarly works.
+      This #{sitenamelong} report contains the cumulative stats collected for all works through
+      #{publication_date.to_s(:long)}. Data are generated by the Lagotto open source software.
+      Go to the Lagotto forum for questions or comments.
+    EOS
+
+    data_export = ZenodoDataExport.create!(
+      name: "alm_stats_report",
+      files: [alm_stats_zip_record.filepath],
+      publication_date: publication_date,
+      title: title,
+      description: description,
+      creators: [ ENV['CREATOR'] ],
+      keywords: ZENODO_KEYWORDS,
+      code_repository_url: ENV["GITHUB_URL"]
+    )
+
+    DataExportJob.perform_later(id: data_export.id)
   end
 
   desc 'Generate all article stats reports'
-  task :all_stats => [:environment, :alm_stats, :mendeley_stats, :pmc_html_stats, :pmc_pdf_stats, :pmc_combined_stats, :pmc_stats, :counter_html_stats, :counter_pdf_stats, :counter_xml_stats, :counter_combined_stats, :counter_stats, :combined_stats, :alm_private_stats, :combined_private_stats, :zip]
+  task :all_stats => [:environment, :alm_stats, :alm_private_stats, :zip, :export_to_zenodo]
 end

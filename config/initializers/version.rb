@@ -1,1 +1,3 @@
-Rails.application.config.version = '3.4'
+module Lagotto
+  VERSION = "5.0.1"
+end

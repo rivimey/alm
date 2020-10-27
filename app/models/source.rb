@@ -1,307 +1,132 @@
-# encoding: UTF-8
-
-# $HeadURL$
-# $Id$
-#
-# Copyright (c) 2009-2014 by Public Library of Science, a non-profit corporation
-# http://www.plos.org/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-require 'cgi'
-require "addressable/uri"
-
 class Source < ActiveRecord::Base
-  # include state machine
-  include Statable
-
-  # include default methods for subclasses
-  include Configurable
-
   # include methods for calculating metrics
   include Measurable
-
-  # include HTTP request helpers
-  include Networkable
-
-  # include CouchDB helpers
-  include Couchable
 
   # include date methods concern
   include Dateable
 
+  # include summary counts
+  include Countable
+
   # include hash helper
   include Hashie::Extensions::DeepFetch
 
-  has_many :retrieval_statuses, :dependent => :destroy
-  has_many :articles, :through => :retrieval_statuses
-  has_many :alerts
-  has_many :api_responses
-  has_many :delayed_jobs, primary_key: "name", foreign_key: "queue", :dependent => :destroy
+  has_many :relations, :dependent => :destroy
+  has_many :results, :dependent => :destroy
+  has_many :months
+  has_many :notifications
+  has_many :works, :through => :results
   belongs_to :group
 
   serialize :config, OpenStruct
 
   validates :name, :presence => true, :uniqueness => true
-  validates :display_name, :presence => true
-  validates :priority, :numericality => { :only_integer => true, :greater_than => 0 }
-  validates :workers, :numericality => { :only_integer => true, :greater_than => 0 }
-  validates :timeout, :numericality => { :only_integer => true, :greater_than => 0 }
-  validates :wait_time, :numericality => { :only_integer => true, :greater_than => 0 }
-  validates :max_failed_queries, :numericality => { :only_integer => true, :greater_than => 0 }
-  validates :max_failed_query_time_interval, :numericality => { :only_integer => true, :greater_than => 0 }
-  validates :job_batch_size, :numericality => { :only_integer => true }, :inclusion => { :in => 1..1000, :message => "should be between 1 and 1000" }
-  validates :rate_limiting, :numericality => { :only_integer => true, :greater_than => 0 }
-  validates :staleness_week, :numericality => { :only_integer => true, :greater_than => 0 }
-  validates :staleness_month, :numericality => { :only_integer => true, :greater_than => 0 }
-  validates :staleness_year, :numericality => { :only_integer => true, :greater_than => 0 }
-  validates :staleness_all, :numericality => { :only_integer => true, :greater_than => 0 }
-  validate :validate_cron_line_format, :allow_blank => true
+  validates :title, :presence => true
 
-  scope :available, where("state = ?", 0).order("group_id, sources.display_name")
-  scope :installed, where("state > ?", 0).order("group_id, sources.display_name")
-  scope :retired, where("state = ?", 1).order("group_id, sources.display_name")
-  scope :visible, where("state > ?", 1).order("group_id, sources.display_name")
-  scope :inactive, where("state = ?", 2).order("group_id, sources.display_name")
-  scope :active, where("state > ?", 2).order("group_id, sources.display_name")
-  scope :for_events, where("state > ?", 2).where("name != ?", 'relativemetric').order("group_id, sources.display_name")
-  scope :queueable, where("state > ?", 2).where("queueable = ?", true).order("group_id, sources.display_name")
+  scope :order_by_name, -> { order("group_id, sources.title") }
+  scope :active, -> { where(active: true).order_by_name }
+  scope :for_results, -> { active.joins(:group).where("groups.name = ?", "results") }
+  scope :for_relations, -> { active.joins(:group).where("groups.name = ?", "relations") }
+  scope :for_results_and_relations, -> { active.joins(:group).where("groups.name IN (?)", ["results", "relations"]) }
+  scope :for_contributions, -> { active.joins(:group).where("groups.name = ?", "contributions") }
+  scope :for_publishers, -> { active.joins(:group).where("groups.name = ?", "publishers") }
 
   # some sources cannot be redistributed
-  scope :public_sources, lambda { where("private = ?", false) }
-  scope :private_sources, lambda { where("private = ?", true) }
+  scope :public_sources, -> { where(private: false) }
+  scope :private_sources, -> { where(private: true) }
+  scope :accessible, ->(role) { where("private <= ?", role) }
 
   def to_param  # overridden, use name instead of id
     name
   end
 
-  def remove_queues
-    delayed_jobs.delete_all
-    retrieval_statuses.update_all(["queued_at = ?", nil])
+  def display_name
+    title
   end
 
-  def queue_all_articles(options = {})
-    return 0 unless active?
+  def human_state_name
+    (active ? "active" : "inactive")
+  end
 
-    # find articles that need to be updated. Not queued currently, scheduled_at doesn't matter
-    rs = retrieval_statuses
+  def get_results_by_month(results, options={})
+    results = results.reject { |relation| relation["occurred_at"].nil? }
 
-    # optionally limit to articles scheduled_at in the past
-    rs = rs.stale unless options[:all]
-
-    # optionally limit by publication date
-    if options[:start_date] && options[:end_date]
-      rs = rs.joins(:article).where("articles.published_on" => options[:start_date]..options[:end_date])
+    options[:metrics] ||= :total
+    results.group_by { |relation| relation["occurred_at"][0..6] }.sort.map do |k, v|
+      { year: k[0..3].to_i,
+        month: k[5..6].to_i,
+        options[:metrics] => v.length,
+        total: v.length }
     end
-
-    rs = rs.order("retrieval_statuses.id").pluck("retrieval_statuses.id")
-    count = queue_article_jobs(rs, priority: priority)
   end
 
-  def queue_article_jobs(rs, options = {})
-    return 0 unless active?
-
-    if rs.length == 0
-      wait
-      return 0
-    end
-
-    rs.each_slice(job_batch_size) do |rs_ids|
-      Delayed::Job.enqueue SourceJob.new(rs_ids, id), queue: name, run_at: schedule_at, priority: priority
-    end
-
-    rs.length
-  end
-
-  def schedule_at
-    last_job = DelayedJob.where(queue: name).maximum(:run_at)
-    return Time.zone.now if last_job.nil?
-
-    last_job + batch_interval
-  end
-
-  # condition for not adding more jobs and disabling the source
-  def check_for_failures
-    failed_queries = Alert.where("source_id = ? AND level > 1 AND updated_at > ?", id, Time.zone.now - max_failed_query_time_interval).count
-    failed_queries > max_failed_queries
-  end
-
-  # limit the number of workers per source
-  def check_for_available_workers
-    workers >= working_count
-  end
-
-  def check_for_active_workers
-    working_count > 1
-  end
-
-  def working_count
-    delayed_jobs.count(:locked_at)
-  end
-
-  def pending_count
-    delayed_jobs.count - working_count
-  end
-
-  def get_data(article, options={})
-    query_url = get_query_url(article)
-    if query_url.nil?
-      result = {}
+  # Format results for all works as csv
+  # Show historical data if options[:format] is used
+  # options[:format] can be "html", "pdf" or "combined"
+  # options[:month] and options[:year] are the starting month and year, default to last month
+  def to_csv(options = {})
+    if ["html", "pdf", "xml", "combined"].include? options[:format]
+      view = "#{options[:name]}_#{options[:format]}_views"
     else
-      result = get_result(query_url, options.merge(request_options))
-
-      # make sure we return a hash
-      result = { 'data' => result } unless result.is_a?(Hash)
+      view = options[:name]
     end
 
-    # extend hash fetch method to nested hashes
-    result.extend Hashie::Extensions::DeepFetch
-  end
+    # service_url = "#{ENV['COUCHDB_URL']}/_design/reports/_view/#{view}"
 
-  def parse_data(result, article, options = {})
-    # turn result into a hash for easier parsing later
-    result = { 'data' => result } unless result.is_a?(Hash)
+    result = get_result(service_url, options.merge(timeout: 1800))
+    if result.blank? || result["rows"].blank?
+      message = "CouchDB report for #{options[:name]} could not be retrieved."
+      Notification.where(message: message).where(unresolved: true).first_or_create(
+        exception: "",
+        class_name: "Faraday::ResourceNotFound",
+        source_id: id,
+        status: 404,
+        level: Notification::FATAL)
+      return ""
+    end
 
-    # properly handle not found errors
-    result = { 'data' => [] } if result[:status] == 404
+    if view == options[:name]
+      CSV.generate do |csv|
+        csv << ["pid_type", "pid", "html", "pdf", "total"]
+        result["rows"].each { |row| csv << ["doi", row["key"], row["value"]["html"], row["value"]["pdf"], row["value"]["total"]] }
+      end
+    else
+      dates = date_range(options).map { |date| "#{date[:year]}-#{date[:month]}" }
 
-    # return early if an error occured that is not a not_found error
-    return result if result[:error]
-
-    options.merge!(response_options)
-    metrics = options[:metrics] || :citations
-
-    events = get_events(result)
-
-    { events: events,
-      events_by_day: get_events_by_day(events, article),
-      events_by_month: get_events_by_month(events),
-      events_url: get_events_url(article),
-      event_count: events.length,
-      event_metrics: get_event_metrics(metrics => events.length) }
-  end
-
-  def get_events_by_day(events, article)
-    events = events.reject { |event| event[:event_time].nil? || Date.iso8601(event[:event_time]) - article.published_on > 30 }
-
-    events.group_by { |event| event[:event_time][0..9] }.sort.map do |k, v|
-      { year: k[0..3].to_i,
-        month: k[5..6].to_i,
-        day: k[8..9].to_i,
-        total: v.length }
+      CSV.generate do |csv|
+        csv << ["pid_type", "pid"] + dates
+        result["rows"].each { |row| csv << ["doi", row["key"]] + dates.map { |date| row["value"][date] || 0 } }
+      end
     end
   end
 
-  def get_events_by_month(events)
-    events = events.reject { |event| event[:event_time].nil? }
-
-    events.group_by { |event| event[:event_time][0..6] }.sort.map do |k, v|
-      { year: k[0..3].to_i,
-        month: k[5..6].to_i,
-        total: v.length }
-    end
-  end
-
-  def request_options
-    {}
-  end
-
-  def response_options
-    {}
-  end
-
-  def get_query_url(article)
-    return nil unless article.doi.present?
-
-    url % { :doi => article.doi_escaped }
-  end
-
-  def get_events_url(article)
-    if events_url.present? && article.doi.present?
-      events_url % { :doi => article.doi_escaped }
-    end
-  end
-
-  def get_author(author)
-    return '' if author.blank?
-
-    name_parts = author.split(' ')
-    family = name_parts.last
-    given = name_parts.length > 1 ? name_parts[0..-2].join(' ') : ''
-
-    [{ 'family' => String(family).titleize,
-       'given' => String(given).titleize }]
-  end
-
-  # Custom validations that are triggered in state machine
-  def validate_config_fields
-    config_fields.each do |field|
-
-      # Some fields can be blank
-      next if name == "crossref" && field == :password
-      next if name == "mendeley" && field == :access_token
-      next if name == "twitter_search" && field == :access_token
-      next if name == "scopus" && field == :insttoken
-
-      errors.add(field, "can't be blank") if send(field).blank?
-    end
-  end
-
-  # Custom validation for cron_line field
-  def validate_cron_line_format
-    cron_parser = CronParser.new(cron_line)
-    cron_parser.next(Time.zone.now)
-  rescue ArgumentError
-    errors.add(:cron_line, "is not a valid crontab entry")
-  end
-
-  def cache_key
-    "#{name}/#{cached_at.utc.iso8601}"
-  end
-
-  def update_date
+  def timestamp
     cached_at.utc.iso8601
   end
 
-  def source_url
-    "http://#{CONFIG[:hostname]}/api/v5/sources/#{name}?api_key=#{CONFIG[:api_key]}"
-  end
-
-  def cached_version
-    response = Rails.cache.read("rabl/v5/1/#{cache_key}//json")
-    response.nil? ? { "data" => {} } : JSON.parse(response)["data"]
+  def cache_key
+    "source/#{name}-#{timestamp}"
   end
 
   def update_cache
-    update_column(:cached_at, Time.zone.now)
-    DelayedJob.delete_all(queue: "#{name}-cache")
-    delay(priority: priority, queue: "#{name}-cache").get_result(source_url, timeout: 900)
+    CacheJob.perform_later(self)
   end
 
-  # Remove all retrieval records for this source that have never been updated,
-  # return true if all records are removed
-  def remove_all_retrievals
-    rs = retrieval_statuses.where(:retrieved_at == '1970-01-01').delete_all
-    retrieval_statuses.count == 0
-  end
+  def write_cache
+    # update cache_key as last step so that we have the old version until we are done
+    now = Time.zone.now
 
-  # Create an empty retrieval record for every article for the new source
-  def create_retrievals
-    article_ids = RetrievalStatus.where(:source_id => id).pluck(:article_id)
+    # loop through cached attributes we want to update
+    [:result_count,
+     :work_count,
+     :relation_count,
+     :with_results_by_day_count,
+     :without_results_by_day_count,
+     :not_updated_by_day_count,
+     :with_results_by_month_count,
+     :without_results_by_month_count,
+     :not_updated_by_month_count].each { |cached_attr| send("#{cached_attr}=", now.utc.iso8601) }
 
-    sql = "insert into retrieval_statuses (article_id, source_id, created_at, updated_at, scheduled_at) select id, #{id}, now(), now(), now() from articles"
-    sql += " where articles.id not in (#{article_ids.join(",")})" if article_ids.any?
-
-    ActiveRecord::Base.connection.execute sql
+    update_column(:cached_at, now)
   end
 end

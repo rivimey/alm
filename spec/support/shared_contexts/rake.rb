@@ -6,7 +6,7 @@ shared_context "rake" do
   let(:task_name) { self.class.top_level_description.split("[").first }
   let(:regexp)    { Regexp.new('\[([\w,]+)\]') }
   let(:task_args) { regexp.match(self.class.top_level_description)[1].split(",") }
-  let(:task_path) { "lib/tasks/#{task_name.split(":").first}" }
+  let(:task_path) { "lib/tasks/#{task_name.split(':').first}" }
   subject         { rake[task_name] }
 
   def loaded_files_excluding_current_rake_file
@@ -16,7 +16,7 @@ shared_context "rake" do
   before do
     Rake.application = rake
     # Rake.application.rake_require(task_path, [Rails.root.to_s], loaded_files_excluding_current_rake_file)
-    Alm::Application.load_tasks
+    Lagotto::Application.load_tasks
     Rake::Task.define_task(:environment)
   end
 end

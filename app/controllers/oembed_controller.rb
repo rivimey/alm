@@ -1,35 +1,27 @@
-# $HeadURL$
-# $Id$
-#
-# Copyright (c) 2009-2012 by Public Library of Science, a non-profit corporation
-# http://www.plos.org/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 require 'cgi'
 
 class OembedController < ApplicationController
-  respond_to :json, :xml
+  before_filter :default_format_json
 
   def show
-    url = CGI.unescape(params[:url])
-    url = Rails.application.routes.recognize_path(url)
-    id_hash = Article.from_uri(url[:id])
-    article = Article.includes(:sources).where(id_hash).first
+    if params[:url]
+      url = CGI.unescape(params[:url])
+      url = Rails.application.routes.recognize_path(url)
+    else
+      url = {}
+    end
 
-    # raise error if article wasn't found
-    fail ActiveRecord::RecordNotFound, "No record for \"#{params[:url]}\" found" if article.blank?
+    # proceed if url was recognized
+    if url["action"] && url["action"] != "routing_error"
+      id_hash = get_id_hash(url[:id])
+      work = Work.where(id_hash)
+    end
 
-    @article = article.decorate(context: { maxwidth: params[:maxwidth], maxheight: params[:maxheight] })
+    # proceed if work was found
+    if url["action"] && url["action"] != "routing_error" && work.first
+      @work = work.first.decorate(context: { maxwidth: params[:maxwidth], maxheight: params[:maxheight] })
+    else
+      render :template => "oembed/not_found", :status => :not_found
+    end
   end
 end

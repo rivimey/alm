@@ -1,95 +1,102 @@
-# $HeadURL$
-# $Id$
-#
-# Copyright (c) 2009-2012 by Public Library of Science, a non-profit corporation
-# http://www.plos.org/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-class Status
+class Status < ActiveRecord::Base
   # include HTTP request helpers
   include Networkable
 
-  attr_reader :articles_count, :events_count, :sources_disabled_count, :alerts_last_day_count, :workers_count, :delayed_jobs_active_count, :responses_count, :requests_count, :users_count, :version, :couchdb_size, :mysql_size, :update_date, :cache_key
+  RELEASES_URL = "https://api.github.com/repos/lagotto/lagotto/releases"
 
-  def articles_count
-    Article.count
+  before_create :collect_status_info, :create_uuid
+
+  default_scope { order("status.created_at DESC") }
+
+  def self.per_page
+    1000
   end
 
-  def articles_last30_count
-    Article.last_x_days(30).count
+  def to_param
+    uuid
   end
 
-  def events_count
-    RetrievalStatus.joins(:source).where("state > ?", 0).where("name != ?", "relativemetric").sum(:event_count)
+  def collect_status_info
+    self.works_count = Work.tracked.count
+    self.works_new_count = Work.tracked.last_x_days(0).count
+    self.contributors_count = Contributor.count
+    self.publishers_count = Publisher.active.count
+    self.relations_count = Relation.count
+    self.results_count = Result.joins(:source).where("sources.active = ?", true)
+      .where("name != ?", "relativemetric").sum(:total)
+    self.responses_count = ApiResponse.total(1).count
+    self.requests_count = ApiRequest.total(1).count
+    self.requests_average = ApiRequest.total(1).average("duration").to_i
+    self.notifications_count = Notification.total_errors(0).count
+    self.deposits_count = Deposit.done.total(1).count
+    self.db_size = get_db_size
+    self.agents_working_count = Agent.working.count
+    self.agents_waiting_count = Agent.waiting.count
+    self.agents_disabled_count = Agent.disabled.count
+    self.version = Lagotto::VERSION
+    self.current_version = get_current_version unless current_version.present?
   end
 
-  def alerts_last_day_count
-    Alert.total_errors(1).count
+  def agents
+    { "working" => agents_working_count,
+      "waiting" => agents_waiting_count,
+      "disabled" => agents_disabled_count }
   end
 
-  def workers_count
-    Worker.count
+  def get_current_version
+    result = get_result(RELEASES_URL, bearer: ENV['GITHUB_PERSONAL_ACCESS_TOKEN'])
+    result = result.is_a?(Array) ? result.first : {}
+    result.fetch("tag_name", "v.#{version}")[2..-1]
   end
 
-  def delayed_jobs_active_count
-    DelayedJob.count
+  # get combined data and index size for all tables
+  def get_db_size
+    sql = "SELECT SUM(DATA_LENGTH + INDEX_LENGTH) as size FROM information_schema.TABLES where TABLE_SCHEMA = '#{ENV['DB_NAME'].to_s}';"
+    result = ActiveRecord::Base.connection.exec_query(sql)
+    result.rows.first.reduce(:+)
   end
 
-  def responses_count
-    ApiResponse.total(1).count
+  def outdated_version?
+    Gem::Version.new(current_version) > Gem::Version.new(version)
   end
 
-  def requests_count
-    ApiRequest.where("created_at > ?", Time.zone.now - 1.day).count
+  def services_ok?
+    # web, mysql and memcached must be running if you can see services panel on status page
+    if redis == "OK" && sidekiq == "OK" && postfix == "OK"
+      true
+    else
+      false
+    end
   end
 
-  def users_count
-    User.count
+  def redis
+    redis_client = Redis.new
+    redis_client.ping == "PONG" ? "OK" : "failed"
+  rescue
+    "failed"
   end
 
-  def sources_active_count
-    Source.active.count
+  def sidekiq
+    sidekiq_client = Sidekiq::ProcessSet.new
+    sidekiq_client.size > 0 ? "OK" : "failed"
+  rescue
+    "failed"
   end
 
-  def version
-    Rails.application.config.version
+  def postfix
+    Timeout::timeout(3) do
+      Net::SMTP.start(ENV["MAIL_ADDRESS"], ENV["MAIL_PORT"])
+    end
+    "OK"
+  rescue
+    "failed"
   end
 
-  def couchdb_size
-    RetrievalStatus.new.get_alm_database["disk_size"] || 0
+  def timestamp
+    updated_at.utc.iso8601
   end
 
-  def update_date
-    Rails.cache.fetch('status:timestamp') { Time.zone.now.utc.iso8601 }
-  end
-
-  def cache_key
-    "status/#{update_date}"
-  end
-
-  def status_url
-    "http://#{CONFIG[:hostname]}/api/v5/status?api_key=#{CONFIG[:api_key]}"
-  end
-
-  def cached_version
-    response = Rails.cache.read("rabl/v5/1/#{cache_key}//json")
-    response.nil? ? { "data" => {} } : JSON.parse(response)["data"]
-  end
-
-  def update_cache
-    Rails.cache.write('status:timestamp', Time.zone.now.utc.iso8601)
-    DelayedJob.delete_all(queue: "status-cache")
-    delay(priority: 3, queue: "status-cache").get_result(status_url, timeout: 900)
+  def create_uuid
+    write_attribute(:uuid, SecureRandom.uuid)
   end
 end

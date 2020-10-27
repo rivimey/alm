@@ -52,63 +52,68 @@
   left: 0;
 	padding: 5px;
 	text-align: center;
-	background: $wet-asphalt;
+	background: white;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
 	color: #fff;
+  border: 2px solid $wet-asphalt;
 }
 
-.viewed {
-  background: $peter-river;
+.relations {
+  border: 2px solid $peter-river;
 }
 
-.bar.viewed {
+.bar.relations {
   fill: $peter-river;
 }
 
-.bar.viewed-alt {
+.bar.relations-alt {
   fill: darken($peter-river, 15%);
 }
 
-.saved {
-  background: $emerald;
+.alm-label.relations p, .alm-label.relations a {
+  color: $peter-river;
 }
 
-.bar.saved {
-  fill: $emerald;
+.alm-label.results {
+  border: 2px solid $turquoise;
 }
 
-.bar.saved-alt {
-  fill: darken($emerald, 15%);
-}
-
-.discussed {
-  background: $turquoise;
-}
-
-.bar.discussed {
+.bar.results {
   fill: $turquoise;
 }
 
-.discussed_event {
-  color: $turquoise;
-}
-
-.bar.discussed-alt {
+.bar.results-alt {
   fill: darken($turquoise, 15%);
 }
 
-.cited {
-  background: $amethyst;
+.alm-label.results p, .alm-label.results a {
+  color: $turquoise;
 }
 
-.bar.cited {
+.contributions {
+  border: 2px solid $amethyst;
+}
+
+.bar.contributions {
   fill: $amethyst;
 }
 
-.bar.cited-alt {
+.contributions_event {
+  color: $amethyst;
+}
+
+.bar.contributions-alt {
   fill: darken($amethyst, 15%);
+}
+
+.alm-label.contributions p, .alm-label.contributions a {
+  color: $amethyst;
+}
+
+.alm-label p, .alm-label a {
+  color: $wet-asphalt;
 }
 
 .alm-label p {
@@ -117,13 +122,11 @@
 
 .alm-label a {
   line-height: 18px;
-  color: #fff;
   text-decoration: none;
 }
 
 .alm-label a:hover {
 	background-color: transparent !important;
-	color: #fff !important;
 }
 
 .alm-count {
@@ -136,11 +139,12 @@
 .alm-control-label {
   text-align: right;
   margin-top: -10px;
+  padding-right: 10px;
 }
 
 .alm-control {
 	color: $link-color;
-  font-size: 16px;;
+  font-size: 16px;
 }
 
 .alm-control.active {
@@ -160,6 +164,11 @@
 
 .label-img {
 	vertical-align: middle;
+}
+
+.donut {
+  display: block;
+  margin: auto;
 }
 
 .chart div {
@@ -191,9 +200,6 @@
 }
 
 .reset {
-  padding-left: 1em;
-  font-size: 13px;
-  font-weigth: normal;
   color: $bar-color-1;
 }
 
@@ -212,7 +218,8 @@
 }
 
 .axis text {
-  font: 10px sans-serif;
+  font-size: 0.85em;
+  font: $font-family-base;
 }
 
 .brush rect.extent {
@@ -230,8 +237,8 @@
 #request-list .day { margin-bottom: .4em; }
 #request-list .request {
   line-height: 27px;
-  background: $gray-light;
   margin-bottom: 2px;
+  padding-left: 15px;
 }
 
 #request-list .request div {
@@ -272,4 +279,4 @@
   color: $brand-warning;
 }
 
-#totals {font-size: smaller; }
+#count { padding-bottom: 1em; margin-bottom: 1em; }

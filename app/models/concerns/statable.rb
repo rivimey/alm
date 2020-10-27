@@ -1,33 +1,13 @@
-# encoding: UTF-8
-
-# $HeadURL$
-# $Id$
-#
-# Copyright (c) 2009-2014 by Public Library of Science, a non-profit corporation
-# http://www.plos.org/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 module Statable
   extend ActiveSupport::Concern
 
   included do
     state_machine :initial => :available do
-      state :available, value: 0 # source available, but not installed
-      state :retired, value: 1   # source installed, but no longer accepting new data
-      state :inactive, value: 2  # source disabled by admin
+      state :available, value: 0 # agent available, but not installed
+      state :retired, value: 1   # agent installed, but no longer accepting new data
+      state :inactive, value: 2  # agent disabled by admin
       state :disabled, value: 3  # can't queue or process jobs, generates alert
-      state :waiting, value: 5   # source active, waiting for next job
+      state :waiting, value: 5   # agent active, waiting for next job
       state :working, value: 6   # processing jobs
 
       state all - [:available, :retired, :inactive] do
@@ -42,8 +22,20 @@ module Statable
         end
       end
 
+      state all - [:available, :retired, :inactive, :disabled] do
+        def updating?
+          true
+        end
+      end
+
+      state all - [:working, :waiting] do
+        def updating?
+          false
+        end
+      end
+
       state all - [:available, :retired, :inactive] do
-        validate { |source| source.validate_config_fields }
+        validate { |agent| agent.validate_config_fields }
       end
 
       state all - [:available] do
@@ -58,19 +50,27 @@ module Statable
         end
       end
 
-      after_transition :available => any - [:available, :retired] do |source|
-        source.create_retrievals
+      after_transition :available => any - [:available, :retired] do |agent|
+        CacheJob.perform_later(agent)
       end
 
-      after_transition :to => :inactive do |source|
-        source.remove_queues
+      after_transition :to => :inactive do |agent|
+        agent.remove_queues
       end
 
-      after_transition any - [:disabled] => :disabled do |source|
-        Alert.create(:exception => "", :class_name => "TooManyErrorsBySourceError",
-                     :message => "#{source.display_name} has exceeded maximum failed queries. Disabling the source.",
-                     :source_id => source.id,
-                     :level => Alert::FATAL)
+      after_transition any - [:disabled] => :disabled do |agent|
+        if agent.check_for_rate_limits
+          class_name = "Net::HTTPTooManyRequests"
+          message = "#{agent.title} has exceeded the rate-limiting of requests. Disabling the agent."
+        else
+          class_name = "TooManyErrorsBySourceError"
+          message = "#{agent.title} has exceeded maximum failed queries. Disabling the agent."
+        end
+        Notification.where(message: message).where(unresolved: true).first_or_create(
+          exception: "",
+          class_name: class_name,
+          source_id: agent.source_id,
+          level: Notification::FATAL)
       end
 
       event :install do
@@ -79,8 +79,8 @@ module Statable
       end
 
       event :uninstall do
-        transition any - [:available] => :available, :if => :remove_all_retrievals
-        transition any - [:available, :retired] => :retired
+        transition any - [:available] => :retired, :if => :obsolete?
+        transition any - [:available] => :available
       end
 
       event :activate do
@@ -98,8 +98,9 @@ module Statable
       end
 
       event :work_after_check do
-        transition [:available, :inactive] => same
+        transition [:available, :retired, :inactive] => same
         transition any => :disabled, :if => :check_for_failures
+        transition any => :disabled, :if => :check_for_rate_limits
         transition any => :working
       end
 
@@ -109,7 +110,6 @@ module Statable
       end
 
       event :wait_after_check do
-        transition :working => same, :if => :check_for_active_workers
         transition :disabled => same
         transition any => :waiting
       end

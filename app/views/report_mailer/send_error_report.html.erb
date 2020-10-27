@@ -1,4 +1,4 @@
-<p>This is the ALM error report, generated <%= Time.zone.now.to_formatted_s(:long) %> UTC.</p>
+<p>This is the Lagotto error report, generated <%= Time.zone.now.to_formatted_s(:long) %> UTC.</p>
 
 <% unless @reviews.empty? -%>
 <p><% @reviews.each do |review| -%>
@@ -8,4 +8,4 @@
 <p>No review found.</p>
 <% end -%>
 
-<p><%= link_to "Go to admin dashboard", alerts_url %></p>
+<p><%= link_to "Go to admin dashboard", notifications_url(host: ENV['SERVERNAME']) %></p>

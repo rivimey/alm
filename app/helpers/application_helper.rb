@@ -1,36 +1,28 @@
-# $HeadURL$
-# $Id$
-#
-# Copyright (c) 2009-2012 by Public Library of Science, a non-profit corporation
-# http://www.plos.org/
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 require 'github/markdown'
 require 'rouge'
 
 module ApplicationHelper
   def login_link
-    if CONFIG[:persona]
-      s = form_tag '/users/auth/persona/callback', :id => 'persona_form', :class => "navbar-form" do
-        p = hidden_field_tag('assertion')
-        p << button_tag('Sign In with Persona', :id => 'sign_in', :class => 'btn btn-link persona')
-        p
-      end
-      s.html_safe
-    elsif CONFIG[:cas_url]
-      link_to "Sign In", user_omniauth_authorize_path(:cas), :id => "sign_in"
+    case ENV['OMNIAUTH']
+    when "cas" then link_to "Sign in with PLOS ID", user_omniauth_authorize_path(:cas), :id => "sign-in", class: 'btn btn-default'
+    when "jwt" then link_to "Sign in", user_omniauth_authorize_path(:jwt), :id => "sign-in", class: 'btn btn-default'
+    when "github" then link_to "Sign in with Github", user_omniauth_authorize_path(:github), :id => "sign-in", class: 'btn btn-default'
+    when "orcid" then link_to "Sign in with ORCID", user_omniauth_authorize_path(:orcid), :id => "sign-in", class: 'btn btn-default'
+    else
+      link_to "Sign in not configured", "#"
     end
+  end
+
+  def icon(icon, text = nil, html_options = {})
+    text, html_options = nil, text if text.is_a?(Hash)
+
+    content_class = "fa fa-#{icon}"
+    content_class << " #{html_options[:class]}" if html_options.key?(:class)
+    html_options[:class] = content_class
+
+    html = content_tag(:i, nil, html_options)
+    html << ' ' << text.to_s unless text.blank?
+    html
   end
 
   def markdown(text)
@@ -42,9 +34,19 @@ module ApplicationHelper
     formatter = Rouge::Formatters::HTML.new(:css_class => 'hll')
     lexer = Rouge::Lexers::Shell.new
 
-    doc = Nokogiri::HTML(html)
+    doc = Nokogiri::HTML::DocumentFragment.parse(html)
     doc.search("//pre").each { |pre| pre.replace formatter.format(lexer.lex(pre.text)) }
     doc.to_s
+  end
+
+  def formatted_class_name(string)
+    return string if string.length < 25
+
+    string.split("::", 2).last
+  end
+
+  def states
+     %w(waiting working failed done)
   end
 
   def state_label(state)
@@ -52,8 +54,8 @@ module ApplicationHelper
     when "working" then '<span class="label label-success">working</span>'
     when "inactive" then '<span class="label label-info">inactive</span>'
     when "disabled" then '<span class="label label-warning">disabled</span>'
-    when "available" then '<span class="label label-primary">available</span>'
-    when "retired" then '<span class="label label-default">retired</span>'
+    when "available" then '<span class="label label-default">available</span>'
+    when "retired" then '<span class="label label-primary">retired</span>'
     else state
     end
   end
@@ -68,31 +70,73 @@ module ApplicationHelper
     end
   end
 
-  def number_hiding_zero(number)
-    (number.nil? || number == 0 ? "" : number)
-  end
-
-  def sources
-    Source.order("group_id, display_name")
-  end
-
-  def alerts
-    %w(Net::HTTPUnauthorized Net::HTTPRequestTimeOut Delayed::WorkerTimeout DelayedJobError Net::HTTPConflict Net::HTTPServiceUnavailable Faraday::ResourceNotFound ActiveRecord::RecordInvalid TooManyErrorsBySourceError SourceInactiveError TooManyWorkersError EventCountDecreasingError EventCountIncreasingTooFastError ApiResponseTooSlowError HtmlRatioTooHighError ArticleNotUpdatedError SourceNotUpdatedError CitationMilestoneAlert)
-  end
-
-  def article_statistics_report_path
-    path = "/files/alm_report.zip"
-    if File.exist?("#{Rails.root}/public#{path}")
-      path
-    else
-      nil
+  def worker_label(status)
+    case status
+    when "working" then "panel-success"
+    when "waiting" then "panel-default"
+    else "panel-warning"
     end
   end
 
-  def date_format(article)
-    if article.day
+  def status_label(name, status)
+    case status
+    when "OK" then name
+    else "<span class='label label-warning'>#{name}</span>"
+    end
+  end
+
+  def number_hiding_zero(number)
+    (number.nil? || number == 0 ? "" : number_with_delimiter(number))
+  end
+
+  def sources
+    Source.order("group_id, title")
+  end
+
+  def publishers
+    Publisher.active.order("name")
+  end
+
+  def contributors
+    Contributor.order("family_name")
+  end
+
+  def author_format(author)
+    author = [author] if author.is_a?(Hash)
+    authors = Array(author).map do |a|
+      if a.is_a?(Hash)
+        name = [a.fetch("given", nil), a.fetch("family", nil)].compact.join(' ')
+        if a["ORCID"].present?
+          pid_short = CGI.escape(a["ORCID"].gsub(/(http|https):\/+(\w+)/, '\2'))
+          "<a href=\"/contributors/#{pid_short}\">#{name}</a>"
+        else
+          name
+        end
+      else
+        nil
+      end
+    end.compact
+
+    fa = case authors.length
+         when 0..2 then authors.join(" & ")
+         when 3..20 then authors[0..-2].join(", ") + " & " + authors.last
+         else authors[0..19].join(", ") + " … & " + authors.last
+         end
+    fa.html_safe
+  end
+
+  def metadata_format(work)
+    work_type = work.work_type.present? ? work.work_type.title : "Work"
+    publication_date = "published " + l(work.published_on, format: date_format(work))
+    container_title = work.container_title.present? ? "via " + work.container_title : ""
+
+    [work_type, publication_date, container_title].join(" ")
+  end
+
+  def date_format(work)
+    if work.day
       :long
-    elsif article.month
+    elsif work.month
       :month
     else
       :year
@@ -104,22 +148,45 @@ module ApplicationHelper
   end
 
   def description_with_link(report)
-    if report.name == 'article_statistics_report' && article_statistics_report_path
-      h(report.description) + link_to("Download", article_statistics_report_path, :class => 'pull-right')
+    if report.name == 'work_statistics_report'
+      h(report.description) #+ link_to("Download", work_statistics_report_path, :class => 'pull-right')
     else
       h(report.description)
     end
   end
 
-  def article_alerts
-    %w(EventCountDecreasingError EventCountIncreasingTooFastError ApiResponseTooSlowError HtmlRatioTooHighError ArticleNotUpdatedError CitationMilestoneAlert)
+  def work_notifications
+    %w(EventCountDecreasingError EventCountIncreasingTooFastError ApiResponseTooSlowError HtmlRatioTooHighError WorkNotUpdatedError CitationMilestoneAlert)
   end
 
   def documents
-    %w(Home Installation Setup Sources API Rake Alerts FAQ Releases Roadmap Contributors)
+    %w(Installation Deployment Setup - Agents Deposits Rake Notifications Styleguide - Releases Roadmap Contributors)
   end
 
   def roles
-    %w(user publisher staff admin)
+    %w(user contributor staff admin)
+  end
+
+  def settings
+    Settings[ENV['MODE']]
+  end
+
+  def data_tags_for_api
+    data = { per_page: 15, model: controller.controller_name }
+    data[:api_key] = current_user.api_key if current_user
+    data[:page] = @page if @page.present?
+    data[:pid] = @work.pid if @work.present?
+    data[:q] = @q if @q.present?
+    data[:class_name] = @class_name if @class_name.present?
+    data[:publisher_id] = @publisher.name if @publisher.present?
+    data[:source_id] = @source.name if @source.present?
+    data[:relation_type_id] = @relation_type.name if @relation_type.present?
+    data[:work_type_id] = @work_type.name if @work_type.present?
+    data[:contributor_role_id] = @contributor_role.name if @contributor_role.present?
+    data[:contributor_id] = @contributor.pid if @contributor.present?
+    data[:sort] = @sort.name if @sort.present?
+    data[:state] = states[@state] if @state.present?
+
+    { class: "navbar-text", id: "api_key", data: data }
   end
 end

@@ -1,25 +1,25 @@
 ---
-layout: page
+layout: card
 title: Wordpress.com
 ---
 
-Wordpress.com is a blog hosting platform by the makers of the Wordpress blogging software. Search results are currently limited to the first 10 hits.
+Wordpress.com is a blog hosting platform by the makers of the Wordpress blogging software. Search results are currently limited to the first 20 hits.
 
 <table width=100% border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
-<td valign="top" width=30%><strong>ALM Name</strong></td>
+<td valign="top" width=30%><strong>Lagotto Name</strong></td>
 <td valign="top" width=70%>wordpress</td>
 </tr>
 <tr>
-<td valign="top" width=20%><strong>ALM Configuration</strong></td>
+<td valign="top" width=20%><strong>Lagotto Configuration</strong></td>
 <td valign="top" width=80%>default</td>
 </tr>
 <tr>
-<td valign="top" width=20%><strong>ALM Core Attributes</strong></td>
+<td valign="top" width=20%><strong>Lagotto Core Attributes</strong></td>
 <td valign="top" width=80%>id<br/>url (as link)<br/>date (as epoch_time)</td>
 </tr>
-<td valign="top" width=20%><strong>ALM Other Attributes</strong></td>
+<td valign="top" width=20%><strong>Lagotto Other Attributes</strong></td>
 <td valign="top" width=80%>title<br/>author<br/>content</td>
 </tr>
 <tr>
@@ -44,7 +44,7 @@ Wordpress.com is a blog hosting platform by the makers of the Wordpress blogging
 </tr>
 <tr>
 <td valign="top" width=20%><strong>API URL</strong></td>
-<td valign="top" width=80%>http://en.search.wordpress.com/?q="DOI"&t=post&f=json&size=20</td>
+<td valign="top" width=80%>http://en.search.wordpress.com/?q="DOI"+OR+"URL"&t=post&f=json&size=20</td>
 </tr>
 <tr>
 <td valign="top" width=20%><strong>License</strong></td>
@@ -141,7 +141,7 @@ Wordpress.com is a blog hosting platform by the makers of the Wordpress blogging
 ```
 
 ## Source Code
-The source code is available [here](https://github.com/articlemetrics/alm/blob/master/app/models/sources/wordpress.rb).
+The source code is available [here](https://github.com/lagotto/lagotto/blob/master/app/models/sources/wordpress.rb).
 
 ## Further Documentation
 * [WordPress.com Search](http://en.support.wordpress.com/wordpresscom-search/)

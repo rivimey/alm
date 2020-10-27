@@ -1,33 +1,20 @@
 require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
-require 'safe_yaml'
-require 'socket'
+require 'syslog/logger'
 
-SafeYAML::OPTIONS[:default_mode] = :safe
-SafeYAML::OPTIONS[:deserialize_symbols] = true
-SafeYAML::OPTIONS[:whitelisted_tags] = ["!ruby/object:OpenStruct"]
+# Require the gems listed in Gemfile, including any gems
+# you've limited to :test, :development, or :production.
+Bundler.require(*Rails.groups)
 
-CONFIG = YAML.load(ERB.new(File.read(File.expand_path('../settings.yml', __FILE__))).result)[Rails.env]
-CONFIG.symbolize_keys!
-
-# reasonable defaults
-CONFIG[:uid] ||= "doi"
-CONFIG[:sitename] ||= "ALM"
-CONFIG[:useragent] ||= "Article-Level Metrics"
-
-addrinfo = Socket.getaddrinfo(Socket.gethostname, nil, nil, Socket::SOCK_DGRAM, nil, Socket::AI_CANONNAME)
-CONFIG[:hostname] ||= addrinfo[0][2]
-CONFIG[:public_server] ||= CONFIG[:hostname]
-CONFIG[:web_servers] ||= [CONFIG[:hostname]]
-
-if defined?(Bundler)
-  # Require the gems listed in Gemfile, including any gems
-  # you've limited to :test, :development, or :production.
-  Bundler.require(:default, Rails.env)
+begin
+  Dotenv.load! File.expand_path("../../.env", __FILE__)
+rescue Errno::ENOENT
+  $stderr.puts "Please create .env file, e.g. from .env.example"
+  exit
 end
 
-module Alm
+module Lagotto
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -35,7 +22,10 @@ module Alm
 
     # Custom directories with classes and modules you want to be autoloadable.
     # config.autoload_paths += %W(#{config.root}/extras)
-    config.autoload_paths += Dir["#{config.root}/app/models/**/", "#{config.root}/app/controllers/**/"]
+    config.autoload_paths += Dir["#{config.root}/app/models/**/**", "#{config.root}/app/controllers/**/"]
+
+    # add assets from Ember app
+    config.assets.paths << "#{Rails.root}/frontend/bower_components"
 
     # Only load the plugins named here, in the order given (default is alphabetical).
     # :all can be used as a placeholder for all plugins not explicitly named.
@@ -52,34 +42,34 @@ module Alm
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
-    # Configure the default encoding used in templates for Ruby 1.9.
+    # Configure the default encoding used in templates for Ruby.
     config.encoding = "utf-8"
-
-    # avoid mass-assignment
-    config.active_record.whitelist_attributes = false
 
     # Configure sensitive parameters which will be filtered from the log file.
     # TODO: do I need to add salt here?
-    config.filter_parameters += [:password]
+    config.filter_parameters += [:password, :authentication_token]
 
     # Use a different cache store
-    config.cache_store = :dalli_store, *CONFIG[:web_servers], { :namespace => "alm", :compress => true }
-
-    # Enable the asset pipeline
-    config.assets.enabled = true
-
-    config.assets.initialize_on_precompile = false
-
-    # Version of your assets, change this if you want to expire all your assets
-    config.assets.version = '1.0'
-
-    # Define custom exception handler
-    config.exceptions_app = lambda { |env| AlertsController.action(:create).call(env) }
+    # dalli uses ENV['MEMCACHE_SERVERS']
+    ENV['MEMCACHE_SERVERS'] ||= ENV['HOSTNAME']
+    config.cache_store = :dalli_store, nil, { :namespace => ENV['APPLICATION'], :compress => true }
 
     # Skip validation of locale
     I18n.enforce_available_locales = false
 
     # Disable IP spoofing check
     config.action_dispatch.ip_spoofing_check = false
+
+    # compress responses with deflate or gzip
+    config.middleware.use Rack::Deflater
+
+    # set Active Job queueing backend
+    config.active_job.queue_adapter = :sidekiq
+
+    # Minimum Sass number precision required by bootstrap-sass
+    #::Sass::Script::Value::Number.precision = [8, ::Sass::Script::Value::Number.precision].max
+
+    # parameter keys that are not explicitly permitted will raise error
+    config.action_controller.action_on_unpermitted_parameters = :raise
   end
 end

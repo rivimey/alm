@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: card
 title: "Reddit"
 ---
 
@@ -8,18 +8,18 @@ title: "Reddit"
 <table width=100% border="0" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
-<td valign="top" width=30%><strong>ALM Name</strong></td>
+<td valign="top" width=30%><strong>Lagotto Name</strong></td>
 <td valign="top" width=70%>reddit</td>
 </tr>
 <tr>
-<td valign="top" width=20%><strong>ALM Configuration</strong></td>
+<td valign="top" width=20%><strong>Lagotto Configuration</strong></td>
 <td valign="top" width=80%>default</td>
 </tr>
 <tr>
-<td valign="top" width=20%><strong>ALM Core Attributes</strong></td>
+<td valign="top" width=20%><strong>Lagotto Core Attributes</strong></td>
 <td valign="top" width=80%>id<br/>url<br/>date (as created)</td>
 </tr>
-<td valign="top" width=20%><strong>ALM Other Attributes</strong></td>
+<td valign="top" width=20%><strong>Lagotto Other Attributes</strong></td>
 <td valign="top" width=80%>title<br/>score<br/>num_comments</td>
 </tr>
 <tr>
@@ -44,7 +44,7 @@ title: "Reddit"
 </tr>
 <tr>
 <td valign="top" width=20%><strong>API URL</strong></td>
-<td valign="top" width=80%>"http://www.reddit.com/search?q=\"DOI\""</td>
+<td valign="top" width=80%>"http://www.reddit.com/search.json?q=\"DOI\"+OR+\"URL\"&limit=100</td>
 </tr>
 <tr>
 <td valign="top" width=20%><strong>License</strong></td>
@@ -204,7 +204,7 @@ title: "Reddit"
 ```
 
 ## Source Code
-The source code is available [here](https://github.com/articlemetrics/alm/blob/master/app/models/sources/reddit.rb).
+The source code is available [here](https://github.com/lagotto/lagotto/blob/master/app/models/sources/reddit.rb).
 
 ## Further Documentation
 * [Reddit API Documentation](http://www.reddit.com/dev/api)
